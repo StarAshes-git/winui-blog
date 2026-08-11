@@ -14,11 +14,10 @@ import {
   deleteSession,
   hashPassword,
   verifyPassword,
+  DEFAULT_PASSWORD,
 } from "../auth";
 
 export const adminApi = new Hono<{ Bindings: Env }>();
-
-const DEFAULT_PASSWORD = "admin";
 
 const ADMIN_PATHS = /^\/api\/(logout|site|change-password)$|^\/api\/posts(?:\/[^/]+)?$/;
 

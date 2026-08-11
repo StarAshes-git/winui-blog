@@ -2,6 +2,8 @@ import type { Env } from "./index";
 
 const PBKDF2_ITERATIONS = 100_000;
 
+export const DEFAULT_PASSWORD = "admin";
+
 function toBase64(bytes: Uint8Array): string {
   let binary = "";
   for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
