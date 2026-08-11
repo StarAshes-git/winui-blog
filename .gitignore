@@ -3,4 +3,5 @@ dist/
 worker/public/
 .wrangler/
 *.local
+*.tsbuildinfo
 .DS_Store
