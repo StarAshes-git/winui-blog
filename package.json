@@ -1,0 +1,12 @@
+{
+  "name": "personal-blog",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:worker": "npm --prefix worker run dev",
+    "build:frontend": "npm --prefix frontend run build",
+    "test": "npm --prefix worker run test",
+    "typecheck": "npm --prefix worker run typecheck && npm --prefix frontend run typecheck"
+  }
+}
