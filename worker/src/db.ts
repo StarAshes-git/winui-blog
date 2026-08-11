@@ -48,7 +48,7 @@ export async function setPassword(env: Env, stored: string): Promise<void> {
     .run();
 }
 
-async function splitTags(input: string[]): Promise<string[]> {
+function splitTags(input: string[]): string[] {
   const cleaned = input
     .map((t) => t.trim())
     .filter((t) => t.length > 0);
@@ -64,30 +64,38 @@ async function splitTags(input: string[]): Promise<string[]> {
 }
 
 async function replaceTags(env: Env, postId: number, tags: string[]): Promise<void> {
-  const clean = await splitTags(tags);
-  const statements = [
-    env.DB.prepare("DELETE FROM post_tags WHERE post_id = ?").bind(postId),
-  ];
-  for (const name of clean) {
-    statements.push(
-      env.DB.prepare("INSERT INTO tags (name) VALUES (?) ON CONFLICT(name) DO NOTHING").bind(name)
+  // 对标签去重并保序
+  const clean = splitTags(tags);
+
+  // 第一步：一次性 batch 插入所有标签（幂等，已存在则跳过）
+  if (clean.length > 0) {
+    await env.DB.batch(
+      clean.map((name) =>
+        env.DB.prepare("INSERT INTO tags (name) VALUES (?) ON CONFLICT(name) DO NOTHING").bind(name)
+      )
     );
   }
-  for (const name of clean) {
-    const row = await env.DB.prepare("SELECT id FROM tags WHERE name = ?").bind(name).first();
-    if (row) {
-      statements.push(
-        env.DB.prepare("INSERT OR IGNORE INTO post_tags (post_id, tag_id) VALUES (?, ?)").bind(
-          postId,
-          row.id
-        )
-      );
+
+  // 第二步：先删除旧关联，保证本次改写总能生效且幂等
+  await env.DB.prepare("DELETE FROM post_tags WHERE post_id = ?").bind(postId).run();
+
+  // 第三步：此时所有标签必然已存在，逐个查 id 并建立关联
+  if (clean.length > 0) {
+    const links: D1PreparedStatement[] = [];
+    for (const name of clean) {
+      const row = await env.DB.prepare("SELECT id FROM tags WHERE name = ?").bind(name).first();
+      if (row) {
+        links.push(
+          env.DB.prepare("INSERT OR IGNORE INTO post_tags (post_id, tag_id) VALUES (?, ?)").bind(
+            postId,
+            row.id
+          )
+        );
+      }
     }
-  }
-  if (statements.length > 1) {
-    await env.DB.batch(statements);
-  } else {
-    await statements[0].run();
+    if (links.length > 0) {
+      await env.DB.batch(links);
+    }
   }
 }
 
