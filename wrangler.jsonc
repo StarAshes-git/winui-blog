@@ -12,8 +12,8 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "blog-db",
-      "database_id": "c72369a9-568a-46b2-b9ae-5c68e3fee6d5"
+      "database_name": "blog-db-personal",
+      "database_id": "0ebdfc4f-b2ee-464d-95e3-2c38240edc4c"
     }
   ],
   "kv_namespaces": [
