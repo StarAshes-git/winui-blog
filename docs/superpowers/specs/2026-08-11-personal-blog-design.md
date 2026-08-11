@@ -98,8 +98,8 @@ CREATE TABLE settings (
 | POST | `/api/login` | 密码登录，返回 token（公开） |
 | POST | `/api/logout` | 注销，删除 KV 会话 |
 | PUT | `/api/site` | 修改自我介绍 |
-| POST | `/api/posts` | 发布文章（含标签） |
-| PUT | `/api/posts/:id` | 编辑文章（含标签） |
+| POST | `/api/posts` | 发布文章（含标签，逗号分隔） |
+| PUT | `/api/posts/:id` | 编辑文章（含标签，逗号分隔） |
 | DELETE | `/api/posts/:id` | 删除文章 |
 | PUT | `/api/password` | 修改密码（需旧密码） |
 
@@ -122,6 +122,12 @@ CREATE TABLE settings (
 - 密码不存明文，PBKDF2 哈希 + 随机盐
 - 会话 token 存 KV 且有过期时间；注消后立即删除
 - 管理接口统一 Bearer token 鉴权，`session:<token>` 不存在或过期返回 401
+
+## 标签处理约定
+
+- 前端发文/编辑表单输入逗号分隔的标签字符串，服务端按 `,` 拆分并去空白
+- 服务端负责：新标签自动创建，`post_tags` 关联更新（先删除该文章旧关联，再插入新关联）
+- 空标签字符串表示文章无标签
 
 ## 非目标（YAGNI）
 
