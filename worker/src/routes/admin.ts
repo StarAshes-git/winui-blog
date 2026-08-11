@@ -20,7 +20,7 @@ export const adminApi = new Hono<{ Bindings: Env }>();
 
 const DEFAULT_PASSWORD = "admin";
 
-const ADMIN_PATHS = /^\/api\/(logout|site|change-password)$|^\/api\/posts(\/\d+)?$/;
+const ADMIN_PATHS = /^\/api\/(logout|site|change-password)$|^\/api\/posts(?:\/[^/]+)?$/;
 
 adminApi.use("*", async (c, next) => {
   if (!ADMIN_PATHS.test(c.req.path)) return next();
