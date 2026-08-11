@@ -13,6 +13,11 @@ const app = new Hono<{ Bindings: Env }>();
 app.route("/api", publicApi);
 app.route("/api", adminApi);
 
+app.onError((err, c) => {
+  console.error(err);
+  return c.json({ error: "服务器内部错误" }, 500);
+});
+
 app.notFound(async (c) => {
   const path = new URL(c.req.url).pathname;
   if (path.startsWith("/api/")) {

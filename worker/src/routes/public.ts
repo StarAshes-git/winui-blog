@@ -12,8 +12,8 @@ publicApi.get("/site", async (c) => {
 
 publicApi.get("/posts", async (c) => {
   const tag = c.req.query("tag") || undefined;
-  const page = Number(c.req.query("page")) || 1;
-  const limit = Number(c.req.query("limit")) || 10;
+  const page = Math.floor(Number(c.req.query("page")) || 1);
+  const limit = Math.floor(Number(c.req.query("limit")) || 10);
   const data = await listPosts(c.env, { tag, page, limit });
   return c.json(data);
 });
@@ -27,7 +27,7 @@ publicApi.get("/posts/:id", async (c) => {
   if (!post) {
     return c.json({ error: "文章不存在" }, 404);
   }
-  c.executionCtx.waitUntil(incrementViews(c.env, id));
+  c.executionCtx.waitUntil(incrementViews(c.env, id).catch(() => {}));
   return c.json(post);
 });
 
