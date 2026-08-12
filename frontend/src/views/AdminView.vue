@@ -11,7 +11,7 @@ import WinTextBlock from "../winui/components/WinTextBlock.vue";
 const loggedIn = ref(!!getToken());
 const password = ref("");
 const error = ref("");
-const siteForm = ref<SiteInfo>({ intro: "" });
+const siteForm = ref<SiteInfo>({ intro: "", site_name: "", avatar_url: "" });
 const postForm = ref({ id: 0, title: "", content: "", tags: "" });
 const editing = ref(false);
 const posts = ref<PagedPosts>({ posts: [], total: 0 });
@@ -67,14 +67,18 @@ async function loadSiteForm(): Promise<void> {
   try {
     siteForm.value = await client.getSite();
   } catch {
-    siteForm.value = { intro: "" };
+    siteForm.value = { intro: "", site_name: "", avatar_url: "" };
   }
 }
 
 async function saveSite(): Promise<void> {
   error.value = "";
   try {
-    await client.updateSite(siteForm.value.intro);
+    await client.updateSite({
+      intro: siteForm.value.intro,
+      site_name: siteForm.value.site_name,
+      avatar_url: siteForm.value.avatar_url,
+    });
   } catch (e) {
     error.value = (e as Error).message;
   }
@@ -246,6 +250,16 @@ const tabItems: { k: "posts" | "site" | "password"; l: string }[] = [
       </section>
 
       <section v-if="tab === 'site'" class="editor">
+        <WinTextBox
+          v-model:Text="siteForm.site_name"
+          PlaceholderText="网站名称"
+          Header="名称"
+        />
+        <WinTextBox
+          v-model:Text="siteForm.avatar_url"
+          PlaceholderText="头像图片 URL"
+          Header="头像 URL"
+        />
         <WinTextBox
           v-model:Text="siteForm.intro"
           PlaceholderText="自我介绍内容"
