@@ -1,5 +1,7 @@
 export interface SiteInfo {
   intro: string;
+  site_name: string;
+  avatar_url: string;
 }
 
 export interface PostSummary {
