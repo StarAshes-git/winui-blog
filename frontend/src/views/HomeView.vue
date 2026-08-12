@@ -7,7 +7,8 @@ import WinButton from "../winui/components/WinButton.vue";
 import WinProgressRing from "../winui/components/WinProgressRing.vue";
 import WinTextBlock from "../winui/components/WinTextBlock.vue";
 
-const site = ref<SiteInfo>({ intro: "" });
+const site = ref<SiteInfo>({ intro: "", site_name: "", avatar_url: "" });
+const avatarFailed = ref(false);
 const paged = ref<PagedPosts>({ posts: [], total: 0 });
 const page = ref(1);
 const loading = ref(false);
@@ -15,10 +16,15 @@ const loading = ref(false);
 async function loadSite(): Promise<void> {
   try {
     site.value = await client.getSite();
+    avatarFailed.value = false;
   } catch {
-    site.value = { intro: "" };
+    site.value = { intro: "", site_name: "", avatar_url: "" };
   }
 }
+
+const displayName = () => site.value.site_name || "个人博客";
+const avatarInitial = () => (displayName() || "客").trim().charAt(0);
+const showAvatarImage = () => site.value.avatar_url && !avatarFailed.value;
 
 async function loadPosts(): Promise<void> {
   loading.value = true;
@@ -45,9 +51,21 @@ onMounted(() => {
 
 <template>
   <div class="home">
-    <section v-if="site.intro" class="intro-card">
-      <WinTextBlock class="intro-title" FontWeight="600" :Text="'关于我'" />
-      <WinTextBlock class="intro-body" :Text="site.intro" />
+    <section class="intro-card">
+      <div class="profile">
+        <div class="avatar">
+          <img
+            v-if="showAvatarImage()"
+            :src="site.avatar_url"
+            alt="头像"
+            class="avatar-img"
+            @error="avatarFailed = true"
+          />
+          <span v-else class="avatar-fallback">{{ avatarInitial() }}</span>
+        </div>
+        <WinTextBlock class="profile-name" FontSize="20" FontWeight="600" :Text="displayName()" />
+        <WinTextBlock v-if="site.intro" class="intro-body" :Text="site.intro" />
+      </div>
     </section>
 
     <section class="posts">
@@ -73,21 +91,53 @@ onMounted(() => {
 
 <style scoped>
 .intro-card {
-  padding: 22px 24px;
+  padding: 28px 24px;
   margin-bottom: 20px;
   background: var(--subtle-secondary);
   border: 1px solid var(--card-stroke);
   border-radius: 8px;
 }
-.intro-title {
-  font-size: 18px;
+.profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 12px;
+  border: 1px solid var(--card-stroke);
+  background: var(--subtle-tertiary);
+}
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--accent-base);
+}
+.profile-name {
   margin-bottom: 8px;
+  color: var(--text-primary);
   display: block;
 }
 .intro-body {
   white-space: pre-wrap;
   color: var(--text-secondary);
   line-height: 1.6;
+  max-width: 640px;
   display: block;
 }
 .posts {
