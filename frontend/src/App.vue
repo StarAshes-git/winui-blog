@@ -78,6 +78,16 @@ const headerText = computed(() => {
   return map[selectedKey.value] ?? "博客";
 });
 
+const canGoBack = computed(() => window.history.length > 1 && route.path !== "/");
+
+function onBackRequested(): void {
+  if (window.history.length > 1) {
+    router.back();
+  } else {
+    router.push("/");
+  }
+}
+
 function onItemInvoked(e: { InvokedItem: unknown; IsSettingsInvoked: boolean; InvokedItemContainer: { Tag?: unknown } }) {
   const tag = e.InvokedItemContainer?.Tag;
   if (tag === "theme") {
@@ -102,6 +112,8 @@ function onItemInvoked(e: { InvokedItem: unknown; IsSettingsInvoked: boolean; In
       :Header="headerText"
       :IsSettingsVisible="false"
       :IsPaneToggleButtonVisible="false"
+      :IsBackEnabled="canGoBack"
+      @BackRequested="onBackRequested"
       @ItemInvoked="onItemInvoked"
       class="app-nav"
     >
