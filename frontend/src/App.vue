@@ -104,14 +104,13 @@ function onItemInvoked(e: { InvokedItem: unknown; IsSettingsInvoked: boolean; In
 <template>
   <WinThemeWrapper :theme="theme">
     <WinNavigationView
-      PaneDisplayMode="Top"
+      PaneDisplayMode="LeftMinimal"
       :MenuItems="menuItems"
       :FooterMenuItems="footerMenuItems"
       :SelectedItem="selectedKey"
       :PaneTitle="paneTitle"
       :Header="headerText"
       :IsSettingsVisible="false"
-      :IsPaneToggleButtonVisible="false"
       :IsBackEnabled="canGoBack"
       @BackRequested="onBackRequested"
       @ItemInvoked="onItemInvoked"
