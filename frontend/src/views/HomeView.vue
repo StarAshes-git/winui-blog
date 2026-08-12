@@ -22,8 +22,8 @@ async function loadSite(): Promise<void> {
   }
 }
 
-const displayName = () => site.value.site_name || "个人博客";
-const avatarInitial = () => (displayName() || "客").trim().charAt(0);
+const displayName = () => site.value.site_name.trim() || "个人博客";
+const avatarInitial = () => displayName().charAt(0);
 const showAvatarImage = () => site.value.avatar_url && !avatarFailed.value;
 
 async function loadPosts(): Promise<void> {

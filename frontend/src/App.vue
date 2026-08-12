@@ -28,6 +28,13 @@ onMounted(() => {
   applyTheme();
 });
 
+watch(
+  () => route.path,
+  () => {
+    loadPaneTitle();
+  }
+);
+
 const selectedKey = computed(() => {
   const p = route.path;
   if (p.startsWith("/post")) return "posts";
@@ -47,7 +54,7 @@ const paneTitle = ref("个人博客");
 async function loadPaneTitle(): Promise<void> {
   try {
     const site = await client.getSite();
-    paneTitle.value = site.site_name || "个人博客";
+    paneTitle.value = site.site_name.trim() || "个人博客";
   } catch {
     /* 保持默认标题 */
   }
