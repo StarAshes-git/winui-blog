@@ -4,7 +4,6 @@ import { useRoute } from "vue-router";
 import { client } from "../api/client";
 import type { PostDetail } from "../api/types";
 import MarkdownView from "../components/MarkdownView.vue";
-import WinTag from "../components/WinTag.vue";
 
 const route = useRoute();
 const post = ref<PostDetail | null>(null);
@@ -31,15 +30,16 @@ onMounted(async () => {
 </script>
 
 <template>
-  <article v-if="post" class="post-view card">
+  <article v-if="post" class="post-view">
     <h1 class="post-title">{{ post.title }}</h1>
     <div class="post-meta">
-      <span>{{ formatTime(post.created_at) }}</span>
-      <span>·</span>
+      <span class="m-icon">&#xE8EF;</span>
       <span>{{ post.views }} 阅读</span>
+      <span class="m-dot">·</span>
+      <span>{{ formatTime(post.created_at) }}</span>
     </div>
-    <div class="post-tags">
-      <WinTag v-for="t in post.tags" :key="t" :name="t" />
+    <div v-if="post.tags.length" class="post-tags">
+      <span v-for="t in post.tags" :key="t" class="tag-pill">{{ t }}</span>
     </div>
     <MarkdownView :source="post.content" />
   </article>
@@ -49,23 +49,43 @@ onMounted(async () => {
 <style scoped>
 .post-view {
   padding: 28px 32px;
+  background: var(--subtle-secondary);
+  border: 1px solid var(--card-stroke);
+  border-radius: 8px;
 }
 .post-title {
   font-size: 26px;
   margin-bottom: 10px;
+  color: var(--text-primary);
 }
 .post-meta {
   display: flex;
+  align-items: center;
   gap: 8px;
   color: var(--text-secondary);
   font-size: 13px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
+}
+.m-icon {
+  color: var(--accent-base);
+}
+.m-dot {
+  opacity: 0.5;
 }
 .post-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 20px;
+}
+.tag-pill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: var(--subtle-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--card-stroke);
 }
 .hint {
   color: var(--text-secondary);

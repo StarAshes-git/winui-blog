@@ -3,6 +3,9 @@ import { ref, onMounted } from "vue";
 import { client } from "../api/client";
 import type { PagedPosts, SiteInfo } from "../api/types";
 import PostCard from "../components/PostCard.vue";
+import WinButton from "../winui/components/WinButton.vue";
+import WinProgressRing from "../winui/components/WinProgressRing.vue";
+import WinTextBlock from "../winui/components/WinTextBlock.vue";
 
 const site = ref<SiteInfo>({ intro: "" });
 const paged = ref<PagedPosts>({ posts: [], total: 0 });
@@ -42,56 +45,75 @@ onMounted(() => {
 
 <template>
   <div class="home">
-    <section v-if="site.intro" class="intro-card card">
-      <div class="intro-title">关于我</div>
-      <div class="intro-body">{{ site.intro }}</div>
+    <section v-if="site.intro" class="intro-card">
+      <WinTextBlock class="intro-title" FontWeight="600" :Text="'关于我'" />
+      <WinTextBlock class="intro-body" :Text="site.intro" />
     </section>
 
     <section class="posts">
-      <div v-if="loading" class="hint">加载中…</div>
-      <PostCard v-for="p in paged.posts" :key="p.id" :post="p" />
-      <div v-if="!loading && paged.posts.length === 0" class="hint">还没有文章，去后台发布第一篇吧。</div>
+      <div v-if="loading" class="loading">
+        <WinProgressRing IsActive :IsIndeterminate="true" />
+        <WinTextBlock class="hint" :Text="'加载中…'" />
+      </div>
+      <template v-else>
+        <PostCard v-for="p in paged.posts" :key="p.id" :post="p" />
+        <div v-if="paged.posts.length === 0" class="hint">
+          <WinTextBlock :Text="'还没有文章，去后台发布第一篇吧。'" />
+        </div>
+      </template>
     </section>
 
     <nav v-if="totalPages() > 1" class="pager">
-      <button class="btn" :disabled="page <= 1" @click="go(page - 1)">上一页</button>
-      <span class="page-info">{{ page }} / {{ totalPages() }}</span>
-      <button class="btn" :disabled="page >= totalPages()" @click="go(page + 1)">下一页</button>
+      <WinButton :Content="'上一页'" :IsEnabled="page > 1" @Click="go(page - 1)" />
+      <WinTextBlock class="page-info" :Text="`${page} / ${totalPages()}`" />
+      <WinButton :Content="'下一页'" :IsEnabled="page < totalPages()" @Click="go(page + 1)" />
     </nav>
   </div>
 </template>
 
 <style scoped>
 .intro-card {
-  padding: 20px 24px;
-  margin-bottom: 16px;
+  padding: 22px 24px;
+  margin-bottom: 20px;
+  background: var(--subtle-secondary);
+  border: 1px solid var(--card-stroke);
+  border-radius: 8px;
 }
 .intro-title {
   font-size: 18px;
-  font-weight: 600;
   margin-bottom: 8px;
+  display: block;
 }
 .intro-body {
   white-space: pre-wrap;
-  color: var(--text);
+  color: var(--text-secondary);
   line-height: 1.6;
+  display: block;
 }
 .posts {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 0;
+  gap: 12px;
+}
 .hint {
   color: var(--text-secondary);
   text-align: center;
-  padding: 32px 0;
+  padding: 40px 0;
+  display: block;
 }
 .pager {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 12px;
-  margin-top: 20px;
+  gap: 14px;
+  margin-top: 24px;
 }
 .page-info {
   font-size: 13px;

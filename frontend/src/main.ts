@@ -1,6 +1,9 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
-import "./styles/win11.css";
+import { i18nKey, createI18n } from "./winui/components/i18n/index";
+import "./winui/index.css";
 
-createApp(App).use(router).mount("#app");
+const app = createApp(App);
+app.provide(i18nKey, createI18n("zh-CN"));
+app.use(router).mount("#app");

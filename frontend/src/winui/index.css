@@ -1,0 +1,19 @@
+@import "./styles/theme.css";
+
+@font-face {
+  font-family: "Segoe Fluent Icons";
+  src: url("./assets/Fonts/SEGOEICONS.TTF") format("truetype");
+  font-display: block;
+}
+
+@font-face {
+  font-family: "WinUIOnWebIcons";
+  src: url("./assets/Fonts/SEGOEICONS.TTF") format("truetype");
+  font-display: block;
+}
+
+.win-nav-shell .icon,
+.win-nav-shell [class*="win-nav-"] .icon,
+.win-nav-item .icon {
+  font-family: "Segoe Fluent Icons";
+}

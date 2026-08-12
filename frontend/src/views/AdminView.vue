@@ -2,10 +2,11 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import { client, getToken, setToken, setUnauthorizedHandler } from "../api/client";
 import type { PagedPosts, SiteInfo, PostDetail } from "../api/types";
-import WinButton from "../components/WinButton.vue";
-import WinDialog from "../components/WinDialog.vue";
-import WinInput from "../components/WinInput.vue";
-import WinTag from "../components/WinTag.vue";
+import WinButton from "../winui/components/WinButton.vue";
+import WinTextBox from "../winui/components/WinTextBox.vue";
+import WinPasswordBox from "../winui/components/WinPasswordBox.vue";
+import WinContentDialog from "../winui/components/WinContentDialog.vue";
+import WinTextBlock from "../winui/components/WinTextBlock.vue";
 
 const loggedIn = ref(!!getToken());
 const password = ref("");
@@ -167,79 +168,121 @@ interface PostSummaryLike {
   title: string;
   tags: string[];
 }
+
+const tabItems: { k: "posts" | "site" | "password"; l: string }[] = [
+  { k: "posts", l: "文章" },
+  { k: "site", l: "自我介绍" },
+  { k: "password", l: "修改密码" },
+];
 </script>
 
 <template>
   <div class="admin">
-    <div v-if="!loggedIn" class="login-card card">
-      <h1 class="admin-title">管理后台</h1>
-      <WinInput v-model="password" type="password" placeholder="输入密码" @keyup.enter="doLogin" />
-      <WinButton variant="primary" class="login-btn" @click="doLogin">登录</WinButton>
+    <div v-if="!loggedIn" class="login-card">
+      <WinTextBlock class="admin-title" FontSize="22" FontWeight="600" :Text="'管理后台'" />
+      <WinPasswordBox
+        v-model:Password="password"
+        PlaceholderText="输入密码"
+        :IsEnabled="true"
+      />
+      <div class="row">
+        <WinButton Content="登录" @Click="doLogin" />
+      </div>
       <div v-if="error" class="err">{{ error }}</div>
     </div>
 
     <div v-else class="admin-main">
       <header class="admin-header">
-        <span class="admin-title">内容管理</span>
-        <WinButton @click="doLogout">退出登录</WinButton>
+        <WinTextBlock class="admin-title" FontSize="20" FontWeight="600" :Text="'内容管理'" />
+        <WinButton Content="退出登录" @Click="doLogout" />
       </header>
 
       <nav class="tabs">
-        <button class="tab" :class="{ active: tab === 'posts' }" @click="tab = 'posts'">文章</button>
-        <button class="tab" :class="{ active: tab === 'site' }" @click="tab = 'site'">自我介绍</button>
-        <button class="tab" :class="{ active: tab === 'password' }" @click="tab = 'password'">修改密码</button>
+        <button
+          v-for="t in tabItems"
+          :key="t.k"
+          class="tab"
+          :class="{ active: tab === t.k }"
+          @click="tab = t.k"
+        >
+          {{ t.l }}
+        </button>
       </nav>
 
       <section v-if="tab === 'posts'">
         <div class="toolbar">
-          <WinButton variant="primary" @click="newPost">发布新文章</WinButton>
+          <WinButton Content="发布新文章" @Click="newPost" />
         </div>
-        <div v-if="editing" class="editor card">
-          <WinInput v-model="postForm.title" placeholder="文章标题" />
-          <WinInput v-model="postForm.content" type="textarea" placeholder="Markdown 内容" />
-          <WinInput v-model="postForm.tags" placeholder="标签，用逗号分隔" />
-          <div class="editor-actions">
-            <WinButton @click="editing = false">取消</WinButton>
-            <WinButton variant="primary" @click="savePost">保存</WinButton>
+        <div v-if="editing" class="editor">
+          <WinTextBox v-model:Text="postForm.title" PlaceholderText="文章标题" Header="标题" />
+          <WinTextBox
+            v-model:Text="postForm.content"
+            PlaceholderText="Markdown 内容"
+            Header="内容"
+            AcceptsReturn
+            TextWrapping="Wrap"
+            :MinHeight="200"
+          />
+          <WinTextBox v-model:Text="postForm.tags" PlaceholderText="标签，用逗号分隔" Header="标签" />
+          <div class="row">
+            <WinButton Content="取消" @Click="editing = false" />
+            <WinButton Content="保存" @Click="savePost" />
           </div>
         </div>
         <div v-else class="post-list">
-          <div v-for="p in posts.posts" :key="p.id" class="post-row card">
+          <div v-for="p in posts.posts" :key="p.id" class="post-row">
             <div class="post-row-info">
               <div class="post-row-title">{{ p.title }}</div>
               <div class="post-row-tags">
-                <WinTag v-for="t in p.tags" :key="t" :name="t" />
+                <span v-for="t in p.tags" :key="t" class="tag-pill">{{ t }}</span>
               </div>
             </div>
             <div class="post-row-actions">
-              <WinButton @click="editPost(p)">编辑</WinButton>
-              <WinButton variant="danger" @click="askDelete(p)">删除</WinButton>
+              <WinButton Content="编辑" @Click="editPost(p)" />
+              <WinButton Content="删除" @Click="askDelete(p)" />
             </div>
           </div>
         </div>
       </section>
 
-      <section v-if="tab === 'site'" class="editor card">
-        <WinInput v-model="siteForm.intro" type="textarea" placeholder="自我介绍内容" />
-        <WinButton variant="primary" @click="saveSite">保存自我介绍</WinButton>
+      <section v-if="tab === 'site'" class="editor">
+        <WinTextBox
+          v-model:Text="siteForm.intro"
+          PlaceholderText="自我介绍内容"
+          Header="自我介绍"
+          AcceptsReturn
+          TextWrapping="Wrap"
+          :MinHeight="160"
+        />
+        <div class="row">
+          <WinButton Content="保存自我介绍" @Click="saveSite" />
+        </div>
       </section>
 
-      <section v-if="tab === 'password'" class="editor card">
-        <WinInput v-model="oldPassword" type="password" placeholder="旧密码" />
-        <WinInput v-model="newPassword" type="password" placeholder="新密码（至少 6 位）" />
-        <WinButton variant="primary" @click="changePasswordSubmit">修改密码</WinButton>
+      <section v-if="tab === 'password'" class="editor">
+        <WinPasswordBox v-model:Password="oldPassword" PlaceholderText="旧密码" Header="旧密码" />
+        <WinPasswordBox
+          v-model:Password="newPassword"
+          PlaceholderText="新密码（至少 6 位）"
+          Header="新密码"
+        />
+        <div class="row">
+          <WinButton Content="修改密码" @Click="changePasswordSubmit" />
+        </div>
       </section>
 
       <div v-if="error" class="err">{{ error }}</div>
 
-      <WinDialog
-        :open="confirmDialogOpen"
-        title="确认删除"
-        @confirm="confirmDelete"
-        @cancel="confirmDialogOpen = false"
+      <WinContentDialog
+        v-model:IsOpen="confirmDialogOpen"
+        :Title="'确认删除'"
+        PrimaryButtonText="删除"
+        CloseButtonText="取消"
+        @PrimaryButtonClick="confirmDelete"
+        @CloseButtonClick="confirmDialogOpen = false"
       >
-        确定要删除这篇文章吗？此操作不可恢复。
-      </WinDialog>
+        <WinTextBlock :Text="'确定要删除这篇文章吗？此操作不可恢复。'" />
+      </WinContentDialog>
     </div>
   </div>
 </template>
@@ -253,12 +296,17 @@ interface PostSummaryLike {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  background: var(--subtle-secondary);
+  border: 1px solid var(--card-stroke);
+  border-radius: 8px;
 }
 .admin-title {
-  font-size: 22px;
+  display: block;
 }
-.login-btn {
-  align-self: flex-start;
+.row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 .err {
   color: #e33030;
@@ -285,21 +333,15 @@ interface PostSummaryLike {
   color: var(--text-secondary);
   font-size: 14px;
   padding: 6px 14px;
-  border-radius: var(--radius);
+  border-radius: 8px;
   cursor: pointer;
 }
 .tab.active {
-  background: var(--card-bg);
-  color: var(--accent);
-  box-shadow: var(--shadow);
+  background: var(--accent-base);
+  color: #fff;
 }
 .toolbar {
   margin-bottom: 12px;
-}
-.editor-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
 }
 .post-list {
   display: flex;
@@ -312,14 +354,28 @@ interface PostSummaryLike {
   align-items: center;
   padding: 12px 16px;
   gap: 12px;
+  background: var(--subtle-secondary);
+  border: 1px solid var(--card-stroke);
+  border-radius: 8px;
 }
 .post-row-title {
   font-weight: 600;
   margin-bottom: 4px;
+  color: var(--text-primary);
 }
 .post-row-tags {
   display: flex;
   gap: 6px;
+  flex-wrap: wrap;
+}
+.tag-pill {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  background: var(--subtle-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--card-stroke);
 }
 .post-row-actions {
   display: flex;

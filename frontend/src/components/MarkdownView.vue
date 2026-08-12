@@ -3,7 +3,7 @@ import { computed } from "vue";
 import { marked } from "marked";
 import { markedHighlight } from "marked-highlight";
 import DOMPurify from "dompurify";
-import hljs from "highlight.js";
+import hljs from "highlight.js/lib/common";
 
 marked.use(
   markedHighlight({

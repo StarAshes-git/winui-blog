@@ -3,7 +3,8 @@ import { ref, onMounted } from "vue";
 import { client } from "../api/client";
 import type { TagCount, PagedPosts } from "../api/types";
 import PostCard from "../components/PostCard.vue";
-import WinTag from "../components/WinTag.vue";
+import WinProgressRing from "../winui/components/WinProgressRing.vue";
+import WinTextBlock from "../winui/components/WinTextBlock.vue";
 
 const tags = ref<TagCount[]>([]);
 const selected = ref("");
@@ -40,9 +41,10 @@ onMounted(() => {
 
 <template>
   <div class="tags-view">
-    <section class="tags-bar card">
-      <WinTag :name="'全部'" />
-      <button class="tag-btn" :class="{ active: selected === '' }" @click="pick('')">全部</button>
+    <section class="tags-bar">
+      <button class="tag-btn" :class="{ active: selected === '' }" @click="pick('')">
+        全部
+      </button>
       <button
         v-for="t in tags"
         :key="t.name"
@@ -55,9 +57,16 @@ onMounted(() => {
     </section>
 
     <section class="posts">
-      <div v-if="loading" class="hint">加载中…</div>
-      <PostCard v-for="p in posts.posts" :key="p.id" :post="p" />
-      <div v-if="!loading && posts.posts.length === 0" class="hint">该标签下暂无文章。</div>
+      <div v-if="loading" class="loading">
+        <WinProgressRing IsActive :IsIndeterminate="true" />
+        <WinTextBlock class="hint" :Text="'加载中…'" />
+      </div>
+      <template v-else>
+        <PostCard v-for="p in posts.posts" :key="p.id" :post="p" />
+        <div v-if="posts.posts.length === 0" class="hint">
+          <WinTextBlock :Text="'该标签下暂无文章。'" />
+        </div>
+      </template>
     </section>
   </div>
 </template>
@@ -67,21 +76,33 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 14px 18px;
-  margin-bottom: 16px;
+  padding: 16px 18px;
+  margin-bottom: 18px;
   align-items: center;
+  background: var(--subtle-secondary);
+  border: 1px solid var(--card-stroke);
+  border-radius: 8px;
 }
 .tag-btn {
-  border: none;
-  background: rgba(128, 128, 128, 0.18);
+  border: 1px solid var(--card-stroke);
+  background: var(--subtle-tertiary);
   color: var(--text-secondary);
   border-radius: 999px;
-  padding: 4px 12px;
+  padding: 5px 14px;
   font-size: 13px;
   cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+.tag-btn:hover {
+  background: var(--subtle-secondary);
+  color: var(--text-primary);
 }
 .tag-btn.active {
-  background: var(--accent);
+  background: var(--accent-base);
+  border-color: var(--accent-base);
   color: #fff;
 }
 .posts {
@@ -89,9 +110,17 @@ onMounted(() => {
   flex-direction: column;
   gap: 12px;
 }
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 0;
+  gap: 12px;
+}
 .hint {
   color: var(--text-secondary);
   text-align: center;
   padding: 32px 0;
+  display: block;
 }
 </style>

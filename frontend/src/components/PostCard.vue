@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { PostSummary } from "../api/types";
-import WinTag from "./WinTag.vue";
 
 defineProps<{ post: PostSummary }>();
 
@@ -12,15 +11,16 @@ function formatTime(ts: number): string {
 </script>
 
 <template>
-  <router-link :to="`/post/${post.id}`" class="post-card card">
+  <router-link :to="`/post/${post.id}`" class="post-card">
     <div class="post-title">{{ post.title }}</div>
     <div class="post-meta">
-      <span>{{ formatTime(post.created_at) }}</span>
-      <span>·</span>
+      <span class="m-views">&#xE8EF;</span>
       <span>{{ post.views }} 阅读</span>
+      <span class="m-dot">·</span>
+      <span>{{ formatTime(post.created_at) }}</span>
     </div>
-    <div class="post-tags">
-      <WinTag v-for="t in post.tags" :key="t" :name="t" />
+    <div v-if="post.tags.length" class="post-tags">
+      <span v-for="t in post.tags" :key="t" class="tag-pill">{{ t }}</span>
     </div>
   </router-link>
 </template>
@@ -28,30 +28,52 @@ function formatTime(ts: number): string {
 <style scoped>
 .post-card {
   display: block;
-  padding: 16px 20px;
+  padding: 18px 22px;
   text-decoration: none;
-  color: var(--text);
-  transition: transform 0.15s, box-shadow 0.15s;
+  color: var(--text-primary);
+  background: var(--subtle-secondary);
+  border: 1px solid var(--card-stroke);
+  border-radius: 8px;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
 }
 .post-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  background: var(--subtle-tertiary);
+  border-color: var(--accent-base);
 }
 .post-title {
   font-size: 17px;
   font-weight: 600;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  color: var(--text-primary);
 }
 .post-meta {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 6px;
   color: var(--text-secondary);
   font-size: 13px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+}
+.m-views {
+  color: var(--accent-base);
+}
+.m-dot {
+  opacity: 0.5;
 }
 .post-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+}
+.tag-pill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: var(--subtle-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--card-stroke);
 }
 </style>
