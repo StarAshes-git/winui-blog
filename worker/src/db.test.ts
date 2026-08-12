@@ -2,6 +2,10 @@ import { describe, it, expect } from "vitest";
 import {
   setIntro,
   getSiteIntro,
+  getSiteName,
+  setSiteName,
+  getAvatarUrl,
+  setAvatarUrl,
   createPost,
   listPosts,
   getPost,
@@ -27,5 +31,9 @@ describe("db 模块边界", () => {
     expect(typeof listTags).toBe("function");
     expect(typeof setPassword).toBe("function");
     expect(typeof getStoredPassword).toBe("function");
+    expect(typeof getSiteName).toBe("function");
+    expect(typeof setSiteName).toBe("function");
+    expect(typeof getAvatarUrl).toBe("function");
+    expect(typeof setAvatarUrl).toBe("function");
   });
 });

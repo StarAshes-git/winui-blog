@@ -33,6 +33,36 @@ export async function setIntro(env: Env, intro: string): Promise<void> {
     .run();
 }
 
+export async function getSiteName(env: Env): Promise<string> {
+  const row = await env.DB.prepare("SELECT value FROM settings WHERE key = ?")
+    .bind("site_name")
+    .first<string>("value");
+  return row ?? "";
+}
+
+export async function setSiteName(env: Env, name: string): Promise<void> {
+  await env.DB.prepare(
+    "INSERT INTO settings (key, value) VALUES ('site_name', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value"
+  )
+    .bind(name)
+    .run();
+}
+
+export async function getAvatarUrl(env: Env): Promise<string> {
+  const row = await env.DB.prepare("SELECT value FROM settings WHERE key = ?")
+    .bind("avatar_url")
+    .first<string>("value");
+  return row ?? "";
+}
+
+export async function setAvatarUrl(env: Env, url: string): Promise<void> {
+  await env.DB.prepare(
+    "INSERT INTO settings (key, value) VALUES ('avatar_url', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value"
+  )
+    .bind(url)
+    .run();
+}
+
 export async function getStoredPassword(env: Env): Promise<string | null> {
   const row = await env.DB.prepare("SELECT value FROM settings WHERE key = ?")
     .bind("password_hash")
