@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { client } from "./api/client";
 import WinNavigationView from "./winui/components/WinNavigationView.vue";
 import WinThemeWrapper from "./winui/components/WinThemeWrapper.vue";
 
@@ -21,6 +22,7 @@ function toggleTheme() {
 }
 
 onMounted(() => {
+  loadPaneTitle();
   const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   theme.value = prefersDark ? "dark" : "light";
   applyTheme();
@@ -39,6 +41,17 @@ const menuItems = ref([
   { Content: "标签", Icon: "\uE8A5", Tag: "tags" },
   { Content: "管理", Icon: "\uE713", Tag: "admin" },
 ]);
+
+const paneTitle = ref("个人博客");
+
+async function loadPaneTitle(): Promise<void> {
+  try {
+    const site = await client.getSite();
+    paneTitle.value = site.site_name || "个人博客";
+  } catch {
+    /* 保持默认标题 */
+  }
+}
 
 const footerMenuItems = computed(() => [
   {
@@ -78,7 +91,7 @@ function onItemInvoked(e: { InvokedItem: unknown; IsSettingsInvoked: boolean; In
       :MenuItems="menuItems"
       :FooterMenuItems="footerMenuItems"
       :SelectedItem="selectedKey"
-      PaneTitle="个人博客"
+      :PaneTitle="paneTitle"
       :Header="headerText"
       :IsSettingsVisible="false"
       :IsPaneToggleButtonVisible="false"
