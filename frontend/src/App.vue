@@ -80,6 +80,8 @@ const headerText = computed(() => {
 
 const canGoBack = computed(() => window.history.length > 1 && route.path !== "/");
 
+const isPaneOpen = ref(false);
+
 function onBackRequested(): void {
   if (window.history.length > 1) {
     router.back();
@@ -104,7 +106,8 @@ function onItemInvoked(e: { InvokedItem: unknown; IsSettingsInvoked: boolean; In
 <template>
   <WinThemeWrapper :theme="theme">
     <WinNavigationView
-      PaneDisplayMode="LeftMinimal"
+      PaneDisplayMode="LeftCompact"
+      :IsPaneOpen="isPaneOpen"
       :MenuItems="menuItems"
       :FooterMenuItems="footerMenuItems"
       :SelectedItem="selectedKey"
@@ -112,6 +115,8 @@ function onItemInvoked(e: { InvokedItem: unknown; IsSettingsInvoked: boolean; In
       :Header="headerText"
       :IsSettingsVisible="false"
       :IsBackEnabled="canGoBack"
+      @mouseenter="isPaneOpen = true"
+      @mouseleave="isPaneOpen = false"
       @BackRequested="onBackRequested"
       @ItemInvoked="onItemInvoked"
       class="app-nav"
