@@ -1,13 +1,17 @@
 import { Hono } from "hono";
 import type { Env } from "../index";
-import { getSiteIntro, listPosts, getPost, incrementViews, listTags, getStoredPassword } from "../db";
+import { getSiteIntro, listPosts, getPost, incrementViews, listTags, getStoredPassword, getSiteName, getAvatarUrl } from "../db";
 import { verifyPassword, generateToken, createSession, DEFAULT_PASSWORD } from "../auth";
 
 export const publicApi = new Hono<{ Bindings: Env }>();
 
 publicApi.get("/site", async (c) => {
-  const intro = await getSiteIntro(c.env);
-  return c.json({ intro });
+  const [intro, site_name, avatar_url] = await Promise.all([
+    getSiteIntro(c.env),
+    getSiteName(c.env),
+    getAvatarUrl(c.env),
+  ]);
+  return c.json({ intro, site_name, avatar_url });
 });
 
 publicApi.get("/posts", async (c) => {

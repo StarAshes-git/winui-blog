@@ -7,6 +7,8 @@ import {
   deletePost,
   getStoredPassword,
   setPassword,
+  setSiteName,
+  setAvatarUrl,
 } from "../db";
 import {
   getToken,
@@ -39,8 +41,11 @@ adminApi.post("/logout", async (c) => {
 
 adminApi.put("/site", async (c) => {
   const body = await c.req.json().catch(() => null);
-  const intro = typeof body?.intro === "string" ? body.intro : "";
-  await setIntro(c.env, intro);
+  const tasks: Promise<void>[] = [];
+  if (typeof body?.intro === "string") tasks.push(setIntro(c.env, body.intro));
+  if (typeof body?.site_name === "string") tasks.push(setSiteName(c.env, body.site_name));
+  if (typeof body?.avatar_url === "string") tasks.push(setAvatarUrl(c.env, body.avatar_url));
+  await Promise.all(tasks);
   return c.json({ ok: true });
 });
 
