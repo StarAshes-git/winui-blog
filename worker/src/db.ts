@@ -63,6 +63,31 @@ export async function setAvatarUrl(env: Env, url: string): Promise<void> {
     .run();
 }
 
+export async function getFooterRecord(env: Env): Promise<{ text: string; link: string } | null> {
+  const row = await env.DB.prepare("SELECT value FROM settings WHERE key = ?")
+    .bind("footer_record")
+    .first<string>("value");
+  if (!row) return null;
+  try {
+    const parsed = JSON.parse(row) as { text?: string; link?: string };
+    return { text: typeof parsed.text === "string" ? parsed.text : "", link: typeof parsed.link === "string" ? parsed.link : "" };
+  } catch {
+    return null;
+  }
+}
+
+export async function setFooterRecord(env: Env, record: { text: string; link: string } | null): Promise<void> {
+  if (!record) {
+    await env.DB.prepare("DELETE FROM settings WHERE key = ?").bind("footer_record").run();
+    return;
+  }
+  await env.DB.prepare(
+    "INSERT INTO settings (key, value) VALUES ('footer_record', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value"
+  )
+    .bind(JSON.stringify(record))
+    .run();
+}
+
 export async function getStoredPassword(env: Env): Promise<string | null> {
   const row = await env.DB.prepare("SELECT value FROM settings WHERE key = ?")
     .bind("password_hash")

@@ -9,6 +9,7 @@ import {
   setPassword,
   setSiteName,
   setAvatarUrl,
+  setFooterRecord,
 } from "../db";
 import {
   getToken,
@@ -41,10 +42,26 @@ adminApi.post("/logout", async (c) => {
 
 adminApi.put("/site", async (c) => {
   const body = await c.req.json().catch(() => null);
+  if (body?.footer_record !== undefined && body.footer_record !== null) {
+    const record = body.footer_record;
+    if (typeof record?.text !== "string" || typeof record?.link !== "string") {
+      return c.json({ error: "备案信息格式错误" }, 400);
+    }
+    if (record.link && !/^https?:\/\//.test(record.link)) {
+      return c.json({ error: "备案链接必须以 http:// 或 https:// 开头" }, 400);
+    }
+  }
   const tasks: Promise<void>[] = [];
   if (typeof body?.intro === "string") tasks.push(setIntro(c.env, body.intro));
   if (typeof body?.site_name === "string") tasks.push(setSiteName(c.env, body.site_name));
   if (typeof body?.avatar_url === "string") tasks.push(setAvatarUrl(c.env, body.avatar_url));
+  if (body?.footer_record !== undefined) {
+    if (body.footer_record === null || body.footer_record.text === "") {
+      tasks.push(setFooterRecord(c.env, null));
+    } else {
+      tasks.push(setFooterRecord(c.env, { text: body.footer_record.text, link: body.footer_record.link }));
+    }
+  }
   await Promise.all(tasks);
   return c.json({ ok: true });
 });
