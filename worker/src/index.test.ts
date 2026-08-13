@@ -12,11 +12,27 @@ function makeEnv(siteName?: string) {
     } as unknown as D1Database,
     SESSIONS: {} as unknown as KVNamespace,
     ASSETS: {
-      fetch: () =>
-        new Response("<!doctype html><html><head><title>个人博客</title></head><body></body></html>", {
-          status: 200,
-          headers: { "Content-Type": "text/html; charset=utf-8" },
-        }),
+      fetch: (input: RequestInfo | URL) => {
+        const url =
+          typeof input === "string"
+            ? new URL(input, "https://assets")
+            : input instanceof URL
+              ? input
+              : new URL(input.url);
+        if (url.pathname === "/assets/xyz.js") {
+          return new Response("console.log('asset')", {
+            status: 200,
+            headers: { "Content-Type": "application/javascript" },
+          });
+        }
+        return new Response(
+          "<!doctype html><html><head><title>个人博客</title></head><body></body></html>",
+          {
+            status: 200,
+            headers: { "Content-Type": "text/html; charset=utf-8" },
+          }
+        );
+      },
     } as unknown as Fetcher,
   };
 }
@@ -52,5 +68,16 @@ describe("worker fetch", () => {
     );
     expect(res.status).toBe(404);
     expect(await res.json()).toEqual({ error: "Not Found" });
+  });
+
+  it("静态资源请求转发到 ASSETS，不经过 HTML 改写", async () => {
+    const res = await worker.fetch(
+      new Request("https://example.com/assets/xyz.js"),
+      makeEnv(),
+      {} as ExecutionContext
+    );
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe("console.log('asset')");
+    expect(res.headers.get("Content-Type")).toBe("application/javascript");
   });
 });

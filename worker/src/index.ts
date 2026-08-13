@@ -41,6 +41,9 @@ app.notFound(async (c) => {
   if (path.startsWith("/api/")) {
     return c.json({ error: "Not Found" }, 404);
   }
+  if (/\.[A-Za-z0-9]{1,10}$/.test(path)) {
+    return c.env.ASSETS.fetch(c.req.raw);
+  }
   return renderIndexHtml(c);
 });
 
