@@ -11,7 +11,13 @@ import WinTextBlock from "../winui/components/WinTextBlock.vue";
 const loggedIn = ref(!!getToken());
 const password = ref("");
 const error = ref("");
-const siteForm = ref<SiteInfo>({ intro: "", site_name: "", avatar_url: "" });
+const siteForm = ref<SiteInfo>({
+  intro: "",
+  site_name: "",
+  avatar_url: "",
+  footer_record: { text: "", link: "" },
+});
+const footerRecord = ref({ text: "", link: "" });
 const postForm = ref({ id: 0, title: "", content: "", tags: "" });
 const editing = ref(false);
 const posts = ref<PagedPosts>({ posts: [], total: 0 });
@@ -65,19 +71,30 @@ async function doLogout(): Promise<void> {
 
 async function loadSiteForm(): Promise<void> {
   try {
-    siteForm.value = await client.getSite();
+    const site = await client.getSite();
+    siteForm.value = site;
+    footerRecord.value = site.footer_record ?? { text: "", link: "" };
   } catch {
-    siteForm.value = { intro: "", site_name: "", avatar_url: "" };
+    siteForm.value = { intro: "", site_name: "", avatar_url: "", footer_record: null };
+    footerRecord.value = { text: "", link: "" };
   }
 }
 
 async function saveSite(): Promise<void> {
   error.value = "";
+  const link = footerRecord.value.link;
+  if (link && !/^https?:\/\//.test(link)) {
+    error.value = "备案链接必须以 http:// 或 https:// 开头";
+    return;
+  }
   try {
     await client.updateSite({
       intro: siteForm.value.intro,
       site_name: siteForm.value.site_name,
       avatar_url: siteForm.value.avatar_url,
+      footer_record: footerRecord.value.text
+        ? { text: footerRecord.value.text, link }
+        : null,
     });
   } catch (e) {
     error.value = (e as Error).message;
@@ -250,6 +267,16 @@ const tabItems: { k: "posts" | "site" | "password"; l: string }[] = [
       </section>
 
       <section v-if="tab === 'site'" class="editor">
+        <WinTextBox
+          v-model:Text="footerRecord.text"
+          PlaceholderText="如：京ICP备12345678号"
+          Header="备案号"
+        />
+        <WinTextBox
+          v-model:Text="footerRecord.link"
+          PlaceholderText="如：https://beian.miit.gov.cn/"
+          Header="备案链接"
+        />
         <WinTextBox
           v-model:Text="siteForm.site_name"
           PlaceholderText="网站名称"
