@@ -22,7 +22,7 @@ function toggleTheme() {
 }
 
 onMounted(() => {
-  loadPaneTitle();
+  loadSiteInfo();
   const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   theme.value = prefersDark ? "dark" : "light";
   applyTheme();
@@ -31,7 +31,7 @@ onMounted(() => {
 watch(
   () => route.path,
   () => {
-    loadPaneTitle();
+    loadSiteInfo();
   }
 );
 
@@ -51,10 +51,13 @@ const menuItems = ref([
 
 const paneTitle = ref("个人博客");
 
-async function loadPaneTitle(): Promise<void> {
+const footerRecord = ref<{ text: string; link: string } | null>(null);
+
+async function loadSiteInfo(): Promise<void> {
   try {
     const site = await client.getSite();
     paneTitle.value = site.site_name.trim() || "个人博客";
+    footerRecord.value = site.footer_record?.text ? site.footer_record : null;
   } catch {
     /* 保持默认标题 */
   }
@@ -122,6 +125,15 @@ function onItemInvoked(e: { InvokedItem: unknown; IsSettingsInvoked: boolean; In
     >
       <main class="app-content">
         <router-view />
+        <footer v-if="footerRecord" class="app-footer">
+          <a
+            v-if="footerRecord.link"
+            :href="footerRecord.link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >{{ footerRecord.text }}</a>
+          <span v-else>{{ footerRecord.text }}</span>
+        </footer>
       </main>
     </WinNavigationView>
   </WinThemeWrapper>
@@ -135,5 +147,20 @@ function onItemInvoked(e: { InvokedItem: unknown; IsSettingsInvoked: boolean; In
   max-width: 960px;
   margin: 0 auto;
   padding: 24px 20px 60px;
+}
+.app-footer {
+  margin-top: 48px;
+  padding-top: 16px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--card-stroke);
+}
+.app-footer a {
+  color: inherit;
+  text-decoration: none;
+}
+.app-footer a:hover {
+  color: var(--accent-base);
 }
 </style>
