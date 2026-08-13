@@ -108,17 +108,28 @@ const applyPassword = (value: string) => {
   emit('PasswordChanged');
 };
 
+let lastVisibleValue = '';
 const onVisibleTextChanged = (value: string) => {
   if (isPasswordVisible.value) {
+    lastVisibleValue = '';
     applyPassword(value);
     return;
   }
 
-  if (value.length < password.value.length) {
+  // 屏蔽事件重放（移动端受控 input 回写圆点串时会重复触发相同的 input 事件）
+  if (value === lastVisibleValue) return;
+  lastVisibleValue = value;
+
+  const maskedLen = password.value.length;
+  if (value.length < maskedLen) {
     applyPassword(password.value.slice(0, value.length));
-  } else if (value.length > password.value.length) {
-    applyPassword(password.value + value.slice(password.value.length).replaceAll(props.PasswordChar, ''));
+    return;
   }
+
+  // 提取遮罩之外的真正新增字符（只保留非 PasswordChar 的输入）
+  const realAdded = value.slice(maskedLen).replaceAll(props.PasswordChar, '');
+  if (!realAdded) return;
+  applyPassword(password.value + realAdded);
 };
 
 const onPaste = (args: { Handled: boolean }) => {

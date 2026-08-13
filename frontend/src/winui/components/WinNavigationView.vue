@@ -70,7 +70,7 @@
         </div>
       </div>
     </nav>
-    <nav v-else class="win-nav-left-panel" :class="['win-nav-left-panel', { 'is-compact': isCompact, 'is-closed-compact': isClosedCompact, 'is-minimal': isLeftMinimalMode, 'has-back-button': showBackButtonInLeftNav, 'has-pane-toggle-button': isPaneToggleButtonVisible }, paneTransition ? `is-pane-${paneTransition}` : '']" :style="paneStyle" ref="navRef" @keydown="onNavigationKeydown" @focusin="onNavigationFocusIn" @pointerdown.capture="onNavigationPointerDown" @touchstart.capture="onNavigationPointerDown">
+    <nav v-else class="win-nav-left-panel" :class="['win-nav-left-panel', { 'is-compact': isCompact, 'is-closed-compact': isClosedCompact, 'is-minimal': isLeftMinimalMode, 'has-back-button': showBackButtonInLeftNav, 'has-pane-toggle-button': isPaneToggleButtonVisible }, paneTransition ? `is-pane-${paneTransition}` : '']" :style="paneStyle" ref="navRef" @keydown="onNavigationKeydown" @focusin="onNavigationFocusIn" @pointerdown.capture="onNavigationPointerDown" @touchstart.capture="onNavigationPointerDown" @pointerenter="onPanePointerEnter" @pointerleave="onPanePointerLeave">
       <button v-if="showBackButtonInLeftNav" class="win-nav-back-button" :disabled="!canGoBack" :aria-label="t('text.back')" v-bind="{ 'tooltipservice.tooltip': t('text.back') }" @click="onBackClick" @mousedown="onBackDown" @mouseup="onBackUp" @mouseleave="onBackLeave">
         <span class="icon animated-icon animated-icon-back" :class="backClass" @animationend="onBackAnimEnd">&#xE72B;</span>
       </button>
@@ -227,6 +227,7 @@ const officialProps = defineProps({
   IsPaneToggleButtonVisible: { type: Boolean, default: true },
   IsPaneOpen: { type: Boolean, default: true },
   IsPaneVisible: { type: Boolean, default: true },
+  ExpandOnHover: { type: Boolean, default: false },
   OpenPaneLength: { type: Number, default: 320 },
   CompactPaneLength: { type: Number, default: 48 },
   CompactModeThresholdWidth: { type: Number, default: 641 },
@@ -1505,6 +1506,17 @@ const toggleCompact = () => {
     wasForceClosed = true;
     ClosePane();
   }
+};
+
+const onPanePointerEnter = () => {
+  if (!props.ExpandOnHover || !isLeftCompactMode.value || !isCompact.value) return;
+  wasForceClosed = false;
+  OpenPane();
+};
+
+const onPanePointerLeave = () => {
+  if (!props.ExpandOnHover || !isLeftCompactMode.value || isCompact.value) return;
+  ClosePane();
 };
 
 const setCompact = (compact, emitUpdate = true) => {

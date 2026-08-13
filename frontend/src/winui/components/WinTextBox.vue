@@ -388,6 +388,7 @@ const normalizeInput = (value: string) => {
 };
 
 const onInput = (event: Event) => {
+  if ((event as InputEvent).isComposing) return;
   const element = event.target as HTMLInputElement | HTMLTextAreaElement;
   const nextValue = normalizeInput(element.value);
   const beforeChangingArgs = { NewText: nextValue, Cancel: false };
@@ -406,6 +407,7 @@ const onInput = (event: Event) => {
 
   emitTextValue(nextValue, 'UserInput', { undo: true });
   resizeTextarea();
+  compositionTextHandled.value = true;
 };
 
 const onFocus = () => {
@@ -470,7 +472,10 @@ const requestCandidateWindowAlignment = (
   });
 };
 
+const compositionTextHandled = ref(false);
+
 const onCompositionStart = () => {
+  compositionTextHandled.value = false;
   requestCandidateWindowAlignment();
   emit('TextCompositionStarted');
 };
@@ -482,6 +487,19 @@ const onCompositionChanged = () => {
 
 const onCompositionEnd = () => {
   emit('TextCompositionEnded');
+  const element = fieldRef.value;
+  if (!element || compositionTextHandled.value) return;
+  // 某些浏览器（尤其 iOS Safari 等移动端）在组合结束后不会补发 input 事件，
+  // 此时需要把组合最终文本同步进受控值，否则会丢失输入或与后续处理错位。
+  requestAnimationFrame(() => {
+    if (compositionTextHandled.value) return;
+    const value = element.value;
+    if (value === currentText.value) return;
+    const nextValue = normalizeInput(value);
+    if (element.value !== nextValue) element.value = nextValue;
+    emitTextValue(nextValue, 'UserInput', { undo: true });
+    resizeTextarea();
+  });
 };
 
 watch(() => props.DesiredCandidateWindowAlignment, () => {

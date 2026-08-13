@@ -107,7 +107,8 @@ function onItemInvoked(e: { InvokedItem: unknown; IsSettingsInvoked: boolean; In
   <WinThemeWrapper :theme="theme">
     <WinNavigationView
       PaneDisplayMode="LeftCompact"
-      :IsPaneOpen="isPaneOpen"
+      v-model:IsPaneOpen="isPaneOpen"
+      ExpandOnHover
       :MenuItems="menuItems"
       :FooterMenuItems="footerMenuItems"
       :SelectedItem="selectedKey"
@@ -115,8 +116,6 @@ function onItemInvoked(e: { InvokedItem: unknown; IsSettingsInvoked: boolean; In
       :Header="headerText"
       :IsSettingsVisible="false"
       :IsBackEnabled="canGoBack"
-      @mouseenter="isPaneOpen = true"
-      @mouseleave="isPaneOpen = false"
       @BackRequested="onBackRequested"
       @ItemInvoked="onItemInvoked"
       class="app-nav"
