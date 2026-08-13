@@ -7,7 +7,7 @@ import WinButton from "../winui/components/WinButton.vue";
 import WinProgressRing from "../winui/components/WinProgressRing.vue";
 import WinTextBlock from "../winui/components/WinTextBlock.vue";
 
-const site = ref<SiteInfo>({ intro: "", site_name: "", avatar_url: "" });
+const site = ref<SiteInfo>({ intro: "", site_name: "", avatar_url: "", footer_record: null });
 const avatarFailed = ref(false);
 const paged = ref<PagedPosts>({ posts: [], total: 0 });
 const page = ref(1);
@@ -18,7 +18,7 @@ async function loadSite(): Promise<void> {
     site.value = await client.getSite();
     avatarFailed.value = false;
   } catch {
-    site.value = { intro: "", site_name: "", avatar_url: "" };
+    site.value = { intro: "", site_name: "", avatar_url: "", footer_record: null };
   }
 }
 
