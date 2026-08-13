@@ -2482,7 +2482,7 @@ watch(() => props.selectedValue, (val) => {
     min-height: 0;
     margin: 0;
     padding: 0;
-    overflow: hidden;
+    overflow: hidden auto;
   }
 
   .win-nav-content-overlay {
