@@ -1,7 +1,13 @@
+export interface SiteFooterRecord {
+  text: string;
+  link: string;
+}
+
 export interface SiteInfo {
   intro: string;
   site_name: string;
   avatar_url: string;
+  footer_record: SiteFooterRecord | null;
 }
 
 export interface PostSummary {

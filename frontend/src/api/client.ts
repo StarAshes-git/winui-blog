@@ -54,8 +54,12 @@ export const client = {
   login: (password: string) =>
     request<{ token: string }>("/login", { method: "POST", body: JSON.stringify({ password }) }),
   logout: () => request<{ ok: boolean }>("/logout", { method: "POST" }),
-  updateSite: (body: { intro?: string; site_name?: string; avatar_url?: string }) =>
-    request<{ ok: boolean }>("/site", { method: "PUT", body: JSON.stringify(body) }),
+  updateSite: (body: {
+    intro?: string;
+    site_name?: string;
+    avatar_url?: string;
+    footer_record?: { text: string; link: string } | null;
+  }) => request<{ ok: boolean }>("/site", { method: "PUT", body: JSON.stringify(body) }),
   createPost: (body: { title: string; content: string; tags: string[] }) =>
     request<{ id: number }>("/posts", { method: "POST", body: JSON.stringify(body) }),
   updatePost: (id: number, body: { title: string; content: string; tags: string[] }) =>
