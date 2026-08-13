@@ -50,6 +50,16 @@ describe("worker fetch", () => {
     expect(html).not.toContain("<title>个人博客</title>");
   });
 
+  it("site_name 含 HTML 特殊字符时正确转义", async () => {
+    const res = await worker.fetch(
+      new Request("https://example.com/", { headers: { Accept: "text/html" } }),
+      makeEnv('<b>&"'),
+      {} as ExecutionContext
+    );
+    const html = await res.text();
+    expect(html).toContain("<title>&lt;b&gt;&amp;&quot;</title>");
+  });
+
   it("site_name 为空时回退默认个人博客", async () => {
     const res = await worker.fetch(
       new Request("https://example.com/", { headers: { Accept: "text/html" } }),

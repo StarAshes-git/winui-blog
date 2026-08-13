@@ -16,6 +16,7 @@ const DEFAULT_TITLE = "个人博客";
 async function renderIndexHtml(c: { env: Env }): Promise<Response> {
   const siteName = (await getSiteName(c.env)).trim() || DEFAULT_TITLE;
   const assetRes = await c.env.ASSETS.fetch(new Request("https://assets/index.html"));
+  if (!assetRes.ok) return assetRes;
   const raw = await assetRes.text();
   const html = raw.replace(
     /<title>[\s\S]*?<\/title>/,
