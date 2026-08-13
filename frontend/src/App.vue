@@ -56,7 +56,9 @@ const footerRecord = ref<{ text: string; link: string } | null>(null);
 async function loadSiteInfo(): Promise<void> {
   try {
     const site = await client.getSite();
-    paneTitle.value = site.site_name.trim() || "个人博客";
+    const title = site.site_name.trim() || "个人博客";
+    paneTitle.value = title;
+    document.title = title;
     footerRecord.value = site.footer_record?.text ? site.footer_record : null;
   } catch {
     /* 保持默认标题 */
