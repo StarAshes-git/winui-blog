@@ -6,6 +6,7 @@
     "dev:frontend": "npm --prefix frontend run dev",
     "dev:worker": "npm --prefix worker run dev",
     "build:frontend": "npm --prefix frontend run build",
+    "build": "npm --prefix frontend install && npm --prefix frontend run build",
     "test": "npm --prefix worker run test",
     "typecheck": "npm --prefix worker run typecheck && npm --prefix frontend run typecheck"
   }
