@@ -1,5 +1,9 @@
 # winui-blog
 
+<p align="center">
+  <img src="frontend/public/favicon.png" alt="项目图标" width="128" />
+</p>
+
 一个使用 Vue 3 + Hono + Cloudflare Workers 构建的个人博客。
 
 ## 功能
