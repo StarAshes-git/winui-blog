@@ -1,4 +1,4 @@
-# 个人博客
+# winui-blog
 
 部署在 Cloudflare Workers 的个人博客，UI 仿 Windows 11 WinUI 风格。
 
