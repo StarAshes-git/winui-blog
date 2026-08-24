@@ -24,75 +24,95 @@
 
 本项目的 UI 组件基于 [WinUIonWeb](https://github.com/Furry-Xiyi/WinUIonWeb) 项目，该项目使用 GPLv3 许可证。
 
-## Giscus 评论配置(需要修改，否则评论功能无法使用）
+---
 
-Giscus 基于 GitHub Discussions，用于文章评论功能。
+## Fork 部署指南
 
-### 前置条件
+如果你想 Fork 这个项目并部署自己的博客，请按以下步骤操作：
 
-1. GitHub 仓库已启用 Discussions
-2. 已安装 [Giscus GitHub App](https://github.com/apps/giscus)
+### 第一步：创建 Cloudflare 资源
 
-### 获取配置参数
+1. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com)
+2. 创建 D1 数据库：
+   ```bash
+   npx wrangler d1 create blog-db
+   ```
+   记录返回的数据库 ID。
 
-1. 打开 https://giscus.app/zh-CN
-2. 输入你的仓库地址（如 `wyf2012/winui-blog`）
-3. 选择 "Announcements" 分类
-4. 选择 "pathname" 映射（本项目使用 "url" 映射以支持 hash 路由）
-5. 复制生成的配置参数
+3. 创建 KV 命名空间：
+   ```bash
+   npx wrangler kv namespace create SESSIONS
+   ```
+   记录返回的 KV ID。
 
-### 修改配置文件
+4. 修改 `worker/wrangler.jsonc`，将数据库 ID 和 KV ID 替换为你自己的：
+   ```jsonc
+   {
+     "binding": "DB",
+     "database_id": "你的 D1 数据库 ID"
+   },
+   {
+     "binding": "SESSIONS",
+     "id": "你的 KV ID"
+   }
+   ```
 
-编辑 `frontend/src/views/PostView.vue`，找到 `GISCUS_CONFIG` 对象：
+### 第二步：配置 Giscus 评论
 
-```typescript
-const GISCUS_CONFIG = {
-  repo: "wyf2012/winui-blog" as `${string}/${string}`,  // 你的仓库地址
-  repoId: "R_kgDOUBrlUg",                               // 仓库 ID
-  category: "Announcements",                             // 分类名称
-  categoryId: "DIC_kwDOUBrlUs4DEBZO",                   // 分类 ID
-};
-```
+1. 确保你的 GitHub 仓库已启用 Discussions
+2. 安装 [Giscus GitHub App](https://github.com/apps/giscus)
+3. 打开 https://giscus.app/zh-CN
+4. 输入你的仓库地址（如 `你的用户名/你的仓库名`）
+5. 选择 "Announcements" 分类
+6. 复制生成的配置参数
 
-将上述值替换为你从 https://giscus.app 获取的值。
+7. 编辑 `frontend/src/views/PostView.vue`，修改 `GISCUS_CONFIG`：
+   ```typescript
+   const GISCUS_CONFIG = {
+     repo: "你的用户名/你的仓库名" as `${string}/${string}`,
+     repoId: "你的 repoId",
+     category: "Announcements",
+     categoryId: "你的 categoryId",
+   };
+   ```
 
-### 重新部署
-
-修改配置后，重新构建并部署：
+### 第三步：构建和部署
 
 ```bash
-cd frontend && npm run build
-npx wrangler deploy
+# 克隆你的 Fork
+git clone https://github.com/你的用户名/你的仓库名.git
+cd 你的仓库名
+
+# 安装依赖
+cd frontend && npm install
+
+# 构建前端
+npm run build
+
+# 部署到 Cloudflare Workers
+cd .. && npx wrangler deploy
 ```
 
-## 部署
+### 第四步：初始化数据库
 
-1. 克隆仓库
-2. 安装依赖：`cd frontend && npm install`
-3. 构建：`npm run build`
-4. 部署到 Cloudflare Workers：`npx wrangler deploy`
+部署成功后，访问你的网站，使用默认密码 `admin` 登录管理后台，然后：
+1. 修改密码
+2. 设置网站名称、头像、简介
+3. 发布第一篇文章
 
-## 环境变量
+---
 
-需要在 Cloudflare Workers 中配置以下环境变量：
-
-- `DB`: D1 数据库绑定
-- `SESSIONS`: KV 命名空间绑定
-
-## 开发
+## 本地开发
 
 ```bash
 # 安装依赖
 cd frontend && npm install
 
-# 开发服务器
+# 启动开发服务器
 npm run dev
 
 # 类型检查
 npx vue-tsc --noEmit
-
-# 构建
-npm run build
 ```
 
 ## 测试
