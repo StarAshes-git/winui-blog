@@ -11,7 +11,7 @@ const post = ref<PostDetail | null>(null);
 const error = ref("");
 
 const GISCUS_CONFIG = {
-  repo: "wyf2012/blog" as `${string}/${string}`,
+  repo: "wyf2012/winui-blog" as `${string}/${string}`,
   repoId: "R_kgDOUBrlUg",
   category: "Announcements",
   categoryId: "DIC_kwDOUBrlUs4DEBZO",
