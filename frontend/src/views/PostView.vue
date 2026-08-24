@@ -35,7 +35,8 @@ function loadGiscus(): void {
   script.setAttribute("data-repo-id", GISCUS_CONFIG.repoId);
   script.setAttribute("data-category", GISCUS_CONFIG.category);
   script.setAttribute("data-category-id", GISCUS_CONFIG.categoryId);
-  script.setAttribute("data-mapping", "url");
+  script.setAttribute("data-mapping", "number");
+  script.setAttribute("data-term", String(post.value?.id || 0));
   script.setAttribute("data-strict", "0");
   script.setAttribute("data-reactions-enabled", "1");
   script.setAttribute("data-emit-metadata", "0");
