@@ -72,7 +72,7 @@ onMounted(() => {
         <WinTextBlock v-if="site.intro" class="intro-body" :Text="site.intro" />
       </div>
 
-      <WinContextMenu v-if="site.social_links.length" class="social-links">
+      <div v-if="site.social_links.length" class="social-links">
         <a
           v-for="link in site.social_links"
           :key="link.name"
@@ -82,10 +82,9 @@ onMounted(() => {
           class="social-link"
           :title="link.name"
         >
-          <span class="m-icon">{{ getSocialIcon(link.name) }}</span>
           <span class="social-name">{{ link.name }}</span>
         </a>
-      </WinContextMenu>
+      </div>
     </section>
 
     <section class="recent-posts">
@@ -167,9 +166,9 @@ onMounted(() => {
 
 .social-links {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
-  gap: 12px;
+  gap: 8px;
   margin-top: 20px;
   padding-top: 16px;
   border-top: 1px solid var(--card-stroke);
@@ -178,14 +177,14 @@ onMounted(() => {
 .social-link {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 6px;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
   background: var(--subtle-tertiary);
   border: 1px solid var(--card-stroke);
   color: var(--text-secondary);
   text-decoration: none;
-  font-size: 13px;
+  font-size: 12px;
   transition: all 0.15s;
 }
 
@@ -196,7 +195,8 @@ onMounted(() => {
 }
 
 .social-link .m-icon {
-  font-size: 16px;
+  font-size: 14px;
+  font-family: 'Segoe Fluent Icons', 'Segoe MDL2 Assets', sans-serif;
 }
 
 .social-name {
