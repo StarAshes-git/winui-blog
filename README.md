@@ -1,4 +1,4 @@
-# Personal Blog
+# winui-blog
 
 一个使用 Vue 3 + Hono + Cloudflare Workers 构建的个人博客。
 
