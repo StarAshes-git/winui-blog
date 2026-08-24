@@ -24,7 +24,7 @@
 
 本项目的 UI 组件基于 [WinUIonWeb](https://github.com/Furry-Xiyi/WinUIonWeb) 项目，该项目使用 GPLv3 许可证。
 
-## Giscus 评论配置
+## Giscus 评论配置(需要修改，否则评论功能无法使用）
 
 Giscus 基于 GitHub Discussions，用于文章评论功能。
 
