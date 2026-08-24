@@ -10,6 +10,8 @@ import {
   setSiteName,
   setAvatarUrl,
   setFooterRecord,
+  setSocialLinks,
+  type SocialLink,
 } from "../db";
 import {
   getToken,
@@ -61,6 +63,16 @@ adminApi.put("/site", async (c) => {
     } else {
       tasks.push(setFooterRecord(c.env, { text: body.footer_record.text, link: body.footer_record.link }));
     }
+  }
+  if (Array.isArray(body?.social_links)) {
+    const links: SocialLink[] = body.social_links.filter(
+      (item: unknown): item is SocialLink =>
+        typeof item === "object" &&
+        item !== null &&
+        typeof (item as SocialLink).name === "string" &&
+        typeof (item as SocialLink).url === "string"
+    );
+    tasks.push(setSocialLinks(c.env, links));
   }
   await Promise.all(tasks);
   return c.json({ ok: true });

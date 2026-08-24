@@ -88,6 +88,38 @@ export async function setFooterRecord(env: Env, record: { text: string; link: st
     .run();
 }
 
+export interface SocialLink {
+  name: string;
+  url: string;
+}
+
+export async function getSocialLinks(env: Env): Promise<SocialLink[]> {
+  const row = await env.DB.prepare("SELECT value FROM settings WHERE key = ?")
+    .bind("social_links")
+    .first<string>("value");
+  if (!row) return [];
+  try {
+    const parsed = JSON.parse(row);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((item: unknown): item is SocialLink =>
+      typeof item === "object" &&
+      item !== null &&
+      typeof (item as SocialLink).name === "string" &&
+      typeof (item as SocialLink).url === "string"
+    );
+  } catch {
+    return [];
+  }
+}
+
+export async function setSocialLinks(env: Env, links: SocialLink[]): Promise<void> {
+  await env.DB.prepare(
+    "INSERT INTO settings (key, value) VALUES ('social_links', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value"
+  )
+    .bind(JSON.stringify(links))
+    .run();
+}
+
 export async function getStoredPassword(env: Env): Promise<string | null> {
   const row = await env.DB.prepare("SELECT value FROM settings WHERE key = ?")
     .bind("password_hash")

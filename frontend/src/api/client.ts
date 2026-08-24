@@ -59,6 +59,7 @@ export const client = {
     site_name?: string;
     avatar_url?: string;
     footer_record?: { text: string; link: string } | null;
+    social_links?: { name: string; url: string }[];
   }) => request<{ ok: boolean }>("/site", { method: "PUT", body: JSON.stringify(body) }),
   createPost: (body: { title: string; content: string; tags: string[] }) =>
     request<{ id: number }>("/posts", { method: "POST", body: JSON.stringify(body) }),

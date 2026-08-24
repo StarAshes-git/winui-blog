@@ -71,6 +71,7 @@ describe("site 接口", () => {
       site_name: "小明博客",
       avatar_url: "https://example.com/a.png",
       footer_record: null,
+      social_links: [],
     });
   });
 
@@ -78,7 +79,7 @@ describe("site 接口", () => {
     const env = makeEnv(new Map());
     const res = await worker.fetch(new Request("https://example.com/api/site"), env, {} as ExecutionContext);
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ intro: "", site_name: "", avatar_url: "", footer_record: null });
+    expect(await res.json()).toEqual({ intro: "", site_name: "", avatar_url: "", footer_record: null, social_links: [] });
   });
 
   it("PUT /api/site 只更新传入字段", async () => {

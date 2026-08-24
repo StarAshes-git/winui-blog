@@ -5,6 +5,7 @@ import type { TagCount, PagedPosts } from "../api/types";
 import PostCard from "../components/PostCard.vue";
 import WinProgressRing from "../winui/components/WinProgressRing.vue";
 import WinTextBlock from "../winui/components/WinTextBlock.vue";
+import WinContextMenu from "../winui/components/WinContextMenu.vue";
 
 const tags = ref<TagCount[]>([]);
 const selected = ref("");
@@ -41,7 +42,8 @@ onMounted(() => {
 
 <template>
   <div class="tags-view">
-    <section class="tags-bar">
+    <WinContextMenu>
+      <section class="tags-bar">
       <button class="tag-btn" :class="{ active: selected === '' }" @click="pick('')">
         全部
       </button>
@@ -54,9 +56,11 @@ onMounted(() => {
       >
         {{ t.name }} ({{ t.count }})
       </button>
-    </section>
+      </section>
+    </WinContextMenu>
 
-    <section class="posts">
+    <WinContextMenu>
+      <section class="posts">
       <div v-if="loading" class="loading">
         <WinProgressRing IsActive :IsIndeterminate="true" />
         <WinTextBlock class="hint" :Text="'加载中…'" />
@@ -67,7 +71,8 @@ onMounted(() => {
           <WinTextBlock :Text="'该标签下暂无文章。'" />
         </div>
       </template>
-    </section>
+      </section>
+    </WinContextMenu>
   </div>
 </template>
 

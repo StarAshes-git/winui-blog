@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
 import { client, getToken, setToken, setUnauthorizedHandler } from "../api/client";
-import type { PagedPosts, SiteInfo, PostDetail } from "../api/types";
+import type { PagedPosts, SiteInfo, PostDetail, SocialLink } from "../api/types";
 import WinButton from "../winui/components/WinButton.vue";
 import WinTextBox from "../winui/components/WinTextBox.vue";
 import WinPasswordBox from "../winui/components/WinPasswordBox.vue";
@@ -16,8 +16,12 @@ const siteForm = ref<SiteInfo>({
   site_name: "",
   avatar_url: "",
   footer_record: { text: "", link: "" },
+  social_links: [],
 });
 const footerRecord = ref({ text: "", link: "" });
+const socialLinks = ref<SocialLink[]>([]);
+const newSocialName = ref("");
+const newSocialUrl = ref("");
 const postForm = ref({ id: 0, title: "", content: "", tags: "" });
 const editing = ref(false);
 const posts = ref<PagedPosts>({ posts: [], total: 0 });
@@ -74,9 +78,11 @@ async function loadSiteForm(): Promise<void> {
     const site = await client.getSite();
     siteForm.value = site;
     footerRecord.value = site.footer_record ?? { text: "", link: "" };
+    socialLinks.value = site.social_links ?? [];
   } catch {
-    siteForm.value = { intro: "", site_name: "", avatar_url: "", footer_record: null };
+    siteForm.value = { intro: "", site_name: "", avatar_url: "", footer_record: null, social_links: [] };
     footerRecord.value = { text: "", link: "" };
+    socialLinks.value = [];
   }
 }
 
@@ -95,6 +101,7 @@ async function saveSite(): Promise<void> {
       footer_record: footerRecord.value.text
         ? { text: footerRecord.value.text, link }
         : null,
+      social_links: socialLinks.value,
     });
   } catch (e) {
     error.value = (e as Error).message;
@@ -182,6 +189,17 @@ async function changePasswordSubmit(): Promise<void> {
   } catch (e) {
     error.value = (e as Error).message;
   }
+}
+
+function addSocialLink(): void {
+  if (!newSocialName.value.trim() || !newSocialUrl.value.trim()) return;
+  socialLinks.value.push({ name: newSocialName.value.trim(), url: newSocialUrl.value.trim() });
+  newSocialName.value = "";
+  newSocialUrl.value = "";
+}
+
+function removeSocialLink(index: number): void {
+  socialLinks.value.splice(index, 1);
 }
 
 interface PostSummaryLike {
@@ -295,6 +313,21 @@ const tabItems: { k: "posts" | "site" | "password"; l: string }[] = [
           TextWrapping="Wrap"
           :MinHeight="160"
         />
+
+        <div class="social-links-section">
+          <WinTextBlock FontSize="14" FontWeight="600" :Text="'社交链接'" />
+          <div v-for="(link, index) in socialLinks" :key="index" class="social-link-row">
+            <WinTextBox v-model:Text="link.name" PlaceholderText="名称" Header="" />
+            <WinTextBox v-model:Text="link.url" PlaceholderText="URL" Header="" />
+            <WinButton Content="删除" @Click="removeSocialLink(index)" />
+          </div>
+          <div class="add-social-link">
+            <WinTextBox v-model:Text="newSocialName" PlaceholderText="名称（如 GitHub）" Header="" />
+            <WinTextBox v-model:Text="newSocialUrl" PlaceholderText="URL" Header="" />
+            <WinButton Content="添加" @Click="addSocialLink" />
+          </div>
+        </div>
+
         <div class="row">
           <WinButton Content="保存自我介绍" @Click="saveSite" />
         </div>
@@ -422,5 +455,42 @@ const tabItems: { k: "posts" | "site" | "password"; l: string }[] = [
   display: flex;
   gap: 8px;
   flex-shrink: 0;
+}
+
+.social-links-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--card-stroke);
+}
+
+.social-link-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.social-link-row > :first-child {
+  flex: 1;
+}
+
+.social-link-row > :nth-child(2) {
+  flex: 2;
+}
+
+.add-social-link {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.add-social-link > :first-child {
+  flex: 1;
+}
+
+.add-social-link > :nth-child(2) {
+  flex: 2;
 }
 </style>

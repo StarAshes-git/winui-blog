@@ -4,6 +4,7 @@ import { useRoute, useRouter } from "vue-router";
 import { client } from "./api/client";
 import WinNavigationView from "./winui/components/WinNavigationView.vue";
 import WinThemeWrapper from "./winui/components/WinThemeWrapper.vue";
+import WinContextMenu from "./winui/components/WinContextMenu.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -40,12 +41,14 @@ const selectedKey = computed(() => {
   if (p.startsWith("/post")) return "posts";
   if (p.startsWith("/tags")) return "tags";
   if (p.startsWith("/admin")) return "admin";
+  if (p.startsWith("/about")) return "about";
   return "home";
 });
 
 const menuItems = ref([
-  { Content: "首页", Icon: "\uE80F", Tag: "home" },
-  { Content: "标签", Icon: "\uE8A5", Tag: "tags" },
+  { Content: "介绍", Icon: "\uE77B", Tag: "about" },
+  { Content: "文章", Icon: "\uE8A5", Tag: "home" },
+  { Content: "标签", Icon: "\uE8B4", Tag: "tags" },
   { Content: "管理", Icon: "\uE713", Tag: "admin" },
 ]);
 
@@ -75,12 +78,13 @@ const footerMenuItems = computed(() => [
 
 const headerText = computed(() => {
   const map: Record<string, string> = {
-    home: "博客",
+    home: "文章",
     posts: "文章",
+    about: "介绍",
     tags: "标签",
     admin: "管理",
   };
-  return map[selectedKey.value] ?? "博客";
+  return map[selectedKey.value] ?? "文章";
 });
 
 const canGoBack = computed(() => window.history.length > 1 && route.path !== "/");
@@ -101,7 +105,7 @@ function onItemInvoked(e: { InvokedItem: unknown; IsSettingsInvoked: boolean; In
     toggleTheme();
     return;
   }
-  const pathMap: Record<string, string> = { home: "/", tags: "/tags", admin: "/admin", posts: "/" };
+  const pathMap: Record<string, string> = { home: "/", about: "/about", tags: "/tags", admin: "/admin", posts: "/" };
   if (tag && pathMap[String(tag)]) {
     router.push(pathMap[String(tag)]);
   }
@@ -127,7 +131,8 @@ function onItemInvoked(e: { InvokedItem: unknown; IsSettingsInvoked: boolean; In
     >
       <main class="app-content">
         <router-view />
-        <footer v-if="footerRecord" class="app-footer">
+        <WinContextMenu>
+          <footer v-if="footerRecord" class="app-footer">
           <a
             v-if="footerRecord.link"
             :href="footerRecord.link"
@@ -135,7 +140,8 @@ function onItemInvoked(e: { InvokedItem: unknown; IsSettingsInvoked: boolean; In
             rel="noopener noreferrer"
           >{{ footerRecord.text }}</a>
           <span v-else>{{ footerRecord.text }}</span>
-        </footer>
+          </footer>
+        </WinContextMenu>
       </main>
     </WinNavigationView>
   </WinThemeWrapper>

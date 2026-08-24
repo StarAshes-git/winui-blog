@@ -1,31 +1,61 @@
-# 个人博客
+# Personal Blog
 
-部署在 Cloudflare Workers 的个人博客，UI 仿 Windows 11 WinUI 风格。
+一个使用 Vue 3 + Hono + Cloudflare Workers 构建的个人博客。
 
-## 本地开发
+## 功能
 
-```bash
-npm --prefix worker install
-npm --prefix frontend install
-npm run build:frontend   # 前端产物输出到 worker/public
-npm --prefix worker run dev
-```
+- 个人介绍页面（头像、简介、社交链接、最近文章）
+- 文章页面（Markdown 渲染、Giscus 评论）
+- 标签筛选
+- 管理后台（文章管理、社交链接、备案信息）
 
-默认管理员密码：`admin`（首次登录后请及时在后台修改）。
+## 技术栈
 
-> 注意：本地开发依赖 workerd 运行时。若本机 Windows 环境遇到 workerd 启动崩溃（access violation），请直接在远程环境部署验证。
+- **前端**: Vue 3 + TypeScript + Vite
+- **后端**: Hono + Cloudflare Workers + D1 + KV
+- **UI**: WinUIonWeb 风格组件
+- **评论**: Giscus (GitHub Discussions)
+
+## 许可证
+
+本项目使用 [GNU General Public License v3.0](LICENSE) 许可证。
+
+### 致谢
+
+本项目的 UI 组件基于 [WinUIonWeb](https://github.com/Furry-Xiyi/WinUIonWeb) 项目，该项目使用 GPLv3 许可证。
 
 ## 部署
 
-1. 创建 D1 数据库与 KV 命名空间，把得到的 ID 填入 `wrangler.jsonc`：
-   ```bash
-   npx wrangler d1 create blog-db
-   npx wrangler kv namespace create SESSIONS
-   npx wrangler d1 execute blog-db --remote --file=./schema.sql
-   ```
-2. 配置 `CLOUDFLARE_API_TOKEN` 环境变量（拥有 Workers/D1/KV 权限）。
-3. 部署：
-   ```bash
-   npm run build:frontend
-   npx wrangler deploy
-   ```
+1. 克隆仓库
+2. 安装依赖：`cd frontend && npm install`
+3. 构建：`npm run build`
+4. 部署到 Cloudflare Workers：`npx wrangler deploy`
+
+## 环境变量
+
+需要在 Cloudflare Workers 中配置以下环境变量：
+
+- `DB`: D1 数据库绑定
+- `SESSIONS`: KV 命名空间绑定
+
+## 开发
+
+```bash
+# 安装依赖
+cd frontend && npm install
+
+# 开发服务器
+npm run dev
+
+# 类型检查
+npx vue-tsc --noEmit
+
+# 构建
+npm run build
+```
+
+## 测试
+
+```bash
+cd worker && npm test
+```
