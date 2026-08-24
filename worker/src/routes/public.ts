@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import type { Env } from "../index";
-import { getSiteIntro, listPosts, getPost, incrementViews, listTags, getStoredPassword, getSiteName, getAvatarUrl, getFooterRecord, getSocialLinks } from "../db";
+import { getSiteIntro, listPosts, getPost, incrementViews, listTags, getStoredPassword, getSiteName, getAvatarUrl, getFooterRecord, getSocialLinks, getProjects, getProject } from "../db";
 import { verifyPassword, generateToken, createSession, DEFAULT_PASSWORD } from "../auth";
 
 export const publicApi = new Hono<{ Bindings: Env }>();
@@ -53,4 +53,21 @@ publicApi.post("/login", async (c) => {
   const token = generateToken();
   await createSession(c.env, token);
   return c.json({ token });
+});
+
+publicApi.get("/projects", async (c) => {
+  const projects = await getProjects(c.env);
+  return c.json({ projects, total: projects.length });
+});
+
+publicApi.get("/projects/:id", async (c) => {
+  const id = Number(c.req.param("id"));
+  if (!Number.isFinite(id)) {
+    return c.json({ error: "Invalid id" }, 400);
+  }
+  const project = await getProject(c.env, id);
+  if (!project) {
+    return c.json({ error: "Not found" }, 404);
+  }
+  return c.json(project);
 });

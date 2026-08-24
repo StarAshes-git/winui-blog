@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { publicApi } from "./routes/public";
 import { adminApi } from "./routes/admin";
 import { getSiteName } from "./db";
+import { runMigrations } from "./migrate";
 
 export interface Env {
   DB: D1Database;
@@ -26,6 +27,11 @@ async function renderIndexHtml(c: { env: Env }): Promise<Response> {
     headers: { "Content-Type": "text/html; charset=utf-8" },
   });
 }
+
+app.use("/api/*", async (c, next) => {
+  await runMigrations(c.env);
+  await next();
+});
 
 app.route("/api", publicApi);
 app.route("/api", adminApi);

@@ -12,6 +12,9 @@ import {
   setFooterRecord,
   setSocialLinks,
   type SocialLink,
+  createProject,
+  updateProject,
+  deleteProject,
 } from "../db";
 import {
   getToken,
@@ -24,7 +27,7 @@ import {
 
 export const adminApi = new Hono<{ Bindings: Env }>();
 
-const ADMIN_PATHS = /^\/api\/(logout|site|change-password)$|^\/api\/posts(?:\/[^/]+)?$/;
+const ADMIN_PATHS = /^\/api\/(logout|site|change-password)$|^\/api\/(?:posts|projects)(?:\/[^/]+)?$/;
 
 adminApi.use("*", async (c, next) => {
   if (!ADMIN_PATHS.test(c.req.path)) return next();
@@ -124,5 +127,80 @@ adminApi.post("/change-password", async (c) => {
     return c.json({ error: "旧密码错误" }, 401);
   }
   await setPassword(c.env, await hashPassword(newPassword));
+  return c.json({ ok: true });
+});
+
+adminApi.post("/projects", async (c) => {
+  const body = await c.req.json<{
+    title?: string;
+    description?: string;
+    cover_url?: string;
+    project_url?: string;
+    demo_url?: string;
+    tags?: string[];
+  }>();
+  
+  if (!body.title || !body.title.trim()) {
+    return c.json({ error: "title is required" }, 400);
+  }
+  
+  const id = await createProject(c.env, {
+    title: body.title.trim(),
+    description: body.description?.trim() || "",
+    cover_url: body.cover_url?.trim() || "",
+    project_url: body.project_url?.trim() || "",
+    demo_url: body.demo_url?.trim() || "",
+    tags: body.tags || []
+  });
+  
+  return c.json({ id }, 201);
+});
+
+adminApi.put("/projects/:id", async (c) => {
+  const id = Number(c.req.param("id"));
+  if (!Number.isFinite(id)) {
+    return c.json({ error: "Invalid id" }, 400);
+  }
+  
+  const body = await c.req.json<{
+    title?: string;
+    description?: string;
+    cover_url?: string;
+    project_url?: string;
+    demo_url?: string;
+    tags?: string[];
+  }>();
+  
+  if (!body.title || !body.title.trim()) {
+    return c.json({ error: "title is required" }, 400);
+  }
+  
+  const ok = await updateProject(c.env, id, {
+    title: body.title.trim(),
+    description: body.description?.trim() || "",
+    cover_url: body.cover_url?.trim() || "",
+    project_url: body.project_url?.trim() || "",
+    demo_url: body.demo_url?.trim() || "",
+    tags: body.tags || []
+  });
+  
+  if (!ok) {
+    return c.json({ error: "Not found" }, 404);
+  }
+  
+  return c.json({ ok: true });
+});
+
+adminApi.delete("/projects/:id", async (c) => {
+  const id = Number(c.req.param("id"));
+  if (!Number.isFinite(id)) {
+    return c.json({ error: "Invalid id" }, 400);
+  }
+  
+  const ok = await deleteProject(c.env, id);
+  if (!ok) {
+    return c.json({ error: "Not found" }, 404);
+  }
+  
   return c.json({ ok: true });
 });

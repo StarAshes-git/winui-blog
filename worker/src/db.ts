@@ -1,5 +1,29 @@
 import type { Env } from "./index";
 
+export interface Project {
+  id: number;
+  title: string;
+  description: string;
+  cover_url: string;
+  project_url: string;
+  demo_url: string;
+  tags: string[];
+  created_at: number;
+  updated_at: number;
+}
+
+export interface ProjectSummary {
+  id: number;
+  title: string;
+  description: string;
+  cover_url: string;
+  project_url: string;
+  demo_url: string;
+  tags: string[];
+  created_at: number;
+  updated_at: number;
+}
+
 export interface PostSummary {
   id: number;
   title: string;
@@ -306,4 +330,79 @@ export async function deletePost(env: Env, id: number): Promise<boolean> {
   const results = await env.DB.batch(statements);
   const changes = results[1].meta.changes;
   return changes > 0;
+}
+
+export async function getProjects(env: Env): Promise<ProjectSummary[]> {
+  const rows = await env.DB.prepare(
+    "SELECT id, title, description, cover_url, project_url, demo_url, tags, created_at, updated_at FROM projects ORDER BY created_at DESC"
+  ).all<{
+    id: number;
+    title: string;
+    description: string;
+    cover_url: string;
+    project_url: string;
+    demo_url: string;
+    tags: string;
+    created_at: number;
+    updated_at: number;
+  }>();
+  
+  return rows.results.map(row => ({
+    ...row,
+    tags: JSON.parse(row.tags || "[]")
+  }));
+}
+
+export async function getProject(env: Env, id: number): Promise<Project | null> {
+  const row = await env.DB.prepare(
+    "SELECT id, title, description, cover_url, project_url, demo_url, tags, created_at, updated_at FROM projects WHERE id = ?"
+  ).bind(id).first<{
+    id: number;
+    title: string;
+    description: string;
+    cover_url: string;
+    project_url: string;
+    demo_url: string;
+    tags: string;
+    created_at: number;
+    updated_at: number;
+  }>();
+  
+  if (!row) return null;
+  
+  return {
+    ...row,
+    tags: JSON.parse(row.tags || "[]")
+  };
+}
+
+export async function createProject(
+  env: Env,
+  data: { title: string; description: string; cover_url: string; project_url: string; demo_url: string; tags: string[] }
+): Promise<number> {
+  const now = Date.now();
+  const res = await env.DB.prepare(
+    "INSERT INTO projects (title, description, cover_url, project_url, demo_url, tags, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+  )
+    .bind(data.title, data.description, data.cover_url, data.project_url, data.demo_url, JSON.stringify(data.tags), now, now)
+    .run();
+  return res.meta.last_row_id;
+}
+
+export async function updateProject(
+  env: Env,
+  id: number,
+  data: { title: string; description: string; cover_url: string; project_url: string; demo_url: string; tags: string[] }
+): Promise<boolean> {
+  const res = await env.DB.prepare(
+    "UPDATE projects SET title = ?, description = ?, cover_url = ?, project_url = ?, demo_url = ?, tags = ?, updated_at = ? WHERE id = ?"
+  )
+    .bind(data.title, data.description, data.cover_url, data.project_url, data.demo_url, JSON.stringify(data.tags), Date.now(), id)
+    .run();
+  return res.meta.changes > 0;
+}
+
+export async function deleteProject(env: Env, id: number): Promise<boolean> {
+  const res = await env.DB.prepare("DELETE FROM projects WHERE id = ?").bind(id).run();
+  return res.meta.changes > 0;
 }

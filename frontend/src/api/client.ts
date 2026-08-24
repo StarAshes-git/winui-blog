@@ -1,4 +1,4 @@
-import type { PagedPosts, PostDetail, PostSummary, SiteInfo, TagCount } from "./types";
+import type { PagedPosts, PostDetail, PostSummary, Project, ProjectSummary, SiteInfo, TagCount } from "./types";
 
 const TOKEN_KEY = "blog_token";
 
@@ -71,4 +71,28 @@ export const client = {
       method: "POST",
       body: JSON.stringify({ oldPassword, newPassword }),
     }),
+  listProjects: () =>
+    request<{ projects: ProjectSummary[]; total: number }>("/projects"),
+  getProject: (id: number) => request<Project>(`/projects/${id}`),
+  createProject: (body: {
+    title: string;
+    description?: string;
+    cover_url?: string;
+    project_url?: string;
+    demo_url?: string;
+    tags?: string[];
+  }) => request<{ id: number }>("/projects", { method: "POST", body: JSON.stringify(body) }),
+  updateProject: (
+    id: number,
+    body: {
+      title: string;
+      description?: string;
+      cover_url?: string;
+      project_url?: string;
+      demo_url?: string;
+      tags?: string[];
+    }
+  ) => request<{ ok: boolean }>(`/projects/${id}`, { method: "PUT", body: JSON.stringify(body) }),
+  deleteProject: (id: number) =>
+    request<{ ok: boolean }>(`/projects/${id}`, { method: "DELETE" }),
 };

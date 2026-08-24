@@ -38,3 +38,17 @@ export interface PagedPosts {
   posts: PostSummary[];
   total: number;
 }
+
+export interface ProjectSummary {
+  id: number;
+  title: string;
+  description: string;
+  cover_url: string;
+  project_url: string;
+  demo_url: string;
+  tags: string[];
+  created_at: number;
+  updated_at: number;
+}
+
+export interface Project extends ProjectSummary {}

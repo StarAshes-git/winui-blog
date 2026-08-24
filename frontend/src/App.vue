@@ -41,12 +41,14 @@ const selectedKey = computed(() => {
   if (p.startsWith("/post")) return "posts";
   if (p.startsWith("/tags")) return "tags";
   if (p.startsWith("/admin")) return "admin";
+  if (p.startsWith("/works")) return "works";
   return "home";
 });
 
 const menuItems = ref([
   { Content: "介绍", Icon: "\uE77B", Tag: "home" },
   { Content: "文章", Icon: "\uE8A5", Tag: "posts" },
+  { Content: "作品", Icon: "\uE774", Tag: "works" },
   { Content: "标签", Icon: "\uE8B4", Tag: "tags" },
   { Content: "管理", Icon: "\uE713", Tag: "admin" },
 ]);
@@ -79,6 +81,7 @@ const headerText = computed(() => {
   const map: Record<string, string> = {
     home: "介绍",
     posts: "文章",
+    works: "作品",
     tags: "标签",
     admin: "管理",
   };
@@ -103,7 +106,7 @@ function onItemInvoked(e: { InvokedItem: unknown; IsSettingsInvoked: boolean; In
     toggleTheme();
     return;
   }
-  const pathMap: Record<string, string> = { home: "/", posts: "/posts", tags: "/tags", admin: "/admin" };
+  const pathMap: Record<string, string> = { home: "/", posts: "/posts", works: "/works", tags: "/tags", admin: "/admin" };
   if (tag && pathMap[String(tag)]) {
     router.push(pathMap[String(tag)]);
   }

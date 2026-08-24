@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
 import { client, getToken, setToken, setUnauthorizedHandler } from "../api/client";
-import type { PagedPosts, SiteInfo, PostDetail, SocialLink } from "../api/types";
+import type { PagedPosts, SiteInfo, PostDetail, SocialLink, ProjectSummary } from "../api/types";
 import WinButton from "../winui/components/WinButton.vue";
 import WinTextBox from "../winui/components/WinTextBox.vue";
 import WinPasswordBox from "../winui/components/WinPasswordBox.vue";
@@ -25,11 +25,25 @@ const newSocialUrl = ref("");
 const postForm = ref({ id: 0, title: "", content: "", tags: "" });
 const editing = ref(false);
 const posts = ref<PagedPosts>({ posts: [], total: 0 });
-const tab = ref<"posts" | "site" | "password">("posts");
+const tab = ref<"posts" | "site" | "password" | "projects">("posts");
 const oldPassword = ref("");
 const newPassword = ref("");
 const confirmDialogOpen = ref(false);
 const pendingDeleteId = ref(0);
+const projects = ref<ProjectSummary[]>([]);
+const projectForm = ref({
+  id: 0,
+  title: "",
+  description: "",
+  cover_url: "",
+  project_url: "",
+  demo_url: "",
+  tags: "",
+  editMode: false,
+});
+const projectEditing = ref(false);
+const pendingDeleteProjectId = ref(0);
+const projectConfirmDialogOpen = ref(false);
 
 let unsub: (() => void) | undefined;
 
@@ -38,6 +52,7 @@ onMounted(() => {
   if (loggedIn.value) {
     refreshPosts();
     loadSiteForm();
+    loadProjects();
   }
 });
 
@@ -59,6 +74,7 @@ async function doLogin(): Promise<void> {
     password.value = "";
     refreshPosts();
     loadSiteForm();
+    loadProjects();
   } catch (e) {
     error.value = (e as Error).message;
   }
@@ -191,6 +207,93 @@ async function changePasswordSubmit(): Promise<void> {
   }
 }
 
+async function loadProjects(): Promise<void> {
+  try {
+    const data = await client.listProjects();
+    projects.value = data.projects;
+  } catch {
+    projects.value = [];
+  }
+}
+
+async function saveProject(): Promise<void> {
+  error.value = "";
+  const tagsArr = projectForm.value.tags.split(",").map((s) => s.trim());
+  try {
+    if (projectForm.value.editMode && projectForm.value.id) {
+      await client.updateProject(projectForm.value.id, {
+        title: projectForm.value.title,
+        description: projectForm.value.description,
+        cover_url: projectForm.value.cover_url,
+        project_url: projectForm.value.project_url,
+        demo_url: projectForm.value.demo_url,
+        tags: tagsArr,
+      });
+    } else {
+      await client.createProject({
+        title: projectForm.value.title,
+        description: projectForm.value.description,
+        cover_url: projectForm.value.cover_url,
+        project_url: projectForm.value.project_url,
+        demo_url: projectForm.value.demo_url,
+        tags: tagsArr,
+      });
+    }
+    resetProjectForm();
+    await loadProjects();
+  } catch (e) {
+    error.value = (e as Error).message;
+  }
+}
+
+function editProject(project: ProjectSummary): void {
+  projectForm.value = {
+    id: project.id,
+    title: project.title,
+    description: project.description,
+    cover_url: project.cover_url,
+    project_url: project.project_url,
+    demo_url: project.demo_url,
+    tags: project.tags.join(","),
+    editMode: true,
+  };
+  projectEditing.value = true;
+}
+
+function askDeleteProject(id: number): void {
+  pendingDeleteProjectId.value = id;
+  projectConfirmDialogOpen.value = true;
+}
+
+async function confirmDeleteProject(): Promise<void> {
+  projectConfirmDialogOpen.value = false;
+  try {
+    await client.deleteProject(pendingDeleteProjectId.value);
+    await loadProjects();
+  } catch (e) {
+    error.value = (e as Error).message;
+  }
+}
+
+function resetProjectForm(): void {
+  projectForm.value = {
+    id: 0,
+    title: "",
+    description: "",
+    cover_url: "",
+    project_url: "",
+    demo_url: "",
+    tags: "",
+    editMode: false,
+  };
+  projectEditing.value = false;
+}
+
+function newProject(): void {
+  resetProjectForm();
+  projectEditing.value = true;
+}
+
 function addSocialLink(): void {
   if (!newSocialName.value.trim() || !newSocialUrl.value.trim()) return;
   socialLinks.value.push({ name: newSocialName.value.trim(), url: newSocialUrl.value.trim() });
@@ -208,8 +311,9 @@ interface PostSummaryLike {
   tags: string[];
 }
 
-const tabItems: { k: "posts" | "site" | "password"; l: string }[] = [
+const tabItems: { k: "posts" | "site" | "password" | "projects"; l: string }[] = [
   { k: "posts", l: "文章" },
+  { k: "projects", l: "作品" },
   { k: "site", l: "自我介绍" },
   { k: "password", l: "修改密码" },
 ];
@@ -279,6 +383,50 @@ const tabItems: { k: "posts" | "site" | "password"; l: string }[] = [
             <div class="post-row-actions">
               <WinButton Content="编辑" @Click="editPost(p)" />
               <WinButton Content="删除" @Click="askDelete(p)" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="tab === 'projects'">
+        <div class="toolbar">
+          <WinButton Content="添加新作品" @Click="newProject" />
+        </div>
+        <div v-if="projectEditing" class="editor">
+          <WinTextBox v-model:Text="projectForm.title" PlaceholderText="作品标题" Header="标题" />
+          <WinTextBox
+            v-model:Text="projectForm.description"
+            PlaceholderText="作品描述"
+            Header="描述"
+            AcceptsReturn
+            TextWrapping="Wrap"
+            :MinHeight="100"
+          />
+          <WinTextBox v-model:Text="projectForm.cover_url" PlaceholderText="封面图片 URL" Header="封面 URL" />
+          <WinTextBox v-model:Text="projectForm.project_url" PlaceholderText="项目链接" Header="项目 URL" />
+          <WinTextBox v-model:Text="projectForm.demo_url" PlaceholderText="演示链接" Header="演示 URL" />
+          <WinTextBox 
+            v-model:Text="projectForm.tags" 
+            PlaceholderText="标签，用逗号分隔" 
+            Header="标签" 
+          />
+          <div class="row">
+            <WinButton Content="取消" @Click="resetProjectForm" />
+            <WinButton Content="保存" @Click="saveProject" />
+          </div>
+        </div>
+        <div v-else class="post-list">
+          <div v-for="p in projects" :key="p.id" class="post-row">
+            <div class="post-row-info">
+              <div class="post-row-title">{{ p.title }}</div>
+              <div class="post-row-tags">
+                <span v-for="t in p.tags" :key="t" class="tag-pill">{{ t }}</span>
+              </div>
+              <div class="post-row-description" v-if="p.description">{{ p.description }}</div>
+            </div>
+            <div class="post-row-actions">
+              <WinButton Content="编辑" @Click="editProject(p)" />
+              <WinButton Content="删除" @Click="askDeleteProject(p.id)" />
             </div>
           </div>
         </div>
@@ -356,6 +504,17 @@ const tabItems: { k: "posts" | "site" | "password"; l: string }[] = [
         @CloseButtonClick="confirmDialogOpen = false"
       >
         <WinTextBlock :Text="'确定要删除这篇文章吗？此操作不可恢复。'" />
+      </WinContentDialog>
+
+      <WinContentDialog
+        v-model:IsOpen="projectConfirmDialogOpen"
+        :Title="'确认删除'"
+        PrimaryButtonText="删除"
+        CloseButtonText="取消"
+        @PrimaryButtonClick="confirmDeleteProject"
+        @CloseButtonClick="projectConfirmDialogOpen = false"
+      >
+        <WinTextBlock :Text="'确定要删除这个作品吗？此操作不可恢复。'" />
       </WinContentDialog>
     </div>
   </div>
@@ -441,6 +600,12 @@ const tabItems: { k: "posts" | "site" | "password"; l: string }[] = [
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+}
+.post-row-description {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  line-height: 1.4;
 }
 .tag-pill {
   display: inline-block;
