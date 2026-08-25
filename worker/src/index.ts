@@ -2,7 +2,6 @@ import { Hono } from "hono";
 import { publicApi } from "./routes/public";
 import { adminApi } from "./routes/admin";
 import { getSiteName } from "./db";
-import { runMigrations } from "./migrate";
 
 export interface Env {
   DB: D1Database;
@@ -24,14 +23,12 @@ async function renderIndexHtml(c: { env: Env }): Promise<Response> {
     `<title>${siteName.replace(/[<>&"]/g, (ch) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[ch] as string))}</title>`
   );
   return new Response(html, {
-    headers: { "Content-Type": "text/html; charset=utf-8" },
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "public, max-age=300, s-maxage=600",
+    },
   });
 }
-
-app.use("/api/*", async (c, next) => {
-  await runMigrations(c.env);
-  await next();
-});
 
 app.route("/api", publicApi);
 app.route("/api", adminApi);
@@ -48,8 +45,14 @@ app.notFound(async (c) => {
   if (path.startsWith("/api/")) {
     return c.json({ error: "Not Found" }, 404);
   }
-  if (/\.[A-Za-z0-9]{1,10}$/.test(path)) {
-    return c.env.ASSETS.fetch(c.req.raw);
+  if (/\.[a-zA-Z0-9]{1,10}$/.test(path)) {
+    const res = await c.env.ASSETS.fetch(c.req.raw);
+    if (res.ok) {
+      const headers = new Headers(res.headers);
+      headers.set("Cache-Control", "public, max-age=31536000, immutable");
+      return new Response(res.body, { status: res.status, headers });
+    }
+    return res;
   }
   return renderIndexHtml(c);
 });
