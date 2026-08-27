@@ -1079,16 +1079,18 @@ html .basic-input-example-theme:has(.example-display[data-theme='dark']) .exampl
   }
 }
 
-html.has-user-bg {
+html.has-user-bg .example-theme-wrapper.theme-light,
+html.has-user-bg .win-theme-scope.theme-light {
   --NavigationViewContentBackground: rgba(249, 249, 249, 0.08);
+  --layer-default: rgba(255, 255, 255, 0.08);
   --flyout-bg: rgba(252, 252, 252, 0.45);
   --AcrylicInAppFillColorDefaultBrush: rgba(252, 252, 252, 0.45);
-  --host-nav-pane-bg: rgba(252, 252, 252, 0.45);
 }
 
-html.has-user-bg.theme-dark {
+html.has-user-bg .example-theme-wrapper.theme-dark,
+html.has-user-bg .win-theme-scope.theme-dark {
   --NavigationViewContentBackground: rgba(48, 48, 48, 0.15);
+  --layer-default: rgba(58, 58, 58, 0.15);
   --flyout-bg: rgba(44, 44, 44, 0.40);
   --AcrylicInAppFillColorDefaultBrush: rgba(44, 44, 44, 0.40);
-  --host-nav-pane-bg: rgba(44, 44, 44, 0.40);
 }
