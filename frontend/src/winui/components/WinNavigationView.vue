@@ -2414,11 +2414,7 @@ watch(() => props.selectedValue, (val) => {
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    background-color: var(--app-bg);
-    background-image: var(--user-bg, none);
-    background-size: var(--user-bg-size, auto);
-    background-position: var(--user-bg-position, center);
-    background-attachment: var(--user-bg-attachment, fixed);
+    background: transparent;
   }
 
   .win-nav-shell.is-left {
@@ -2459,6 +2455,8 @@ watch(() => props.selectedValue, (val) => {
     pointer-events: none;
     border-radius: inherit;
     background: var(--NavigationViewContentBackground, var(--layer-fill-color-default, var(--layer-default)));
+    -webkit-backdrop-filter: blur(40px) saturate(150%);
+    backdrop-filter: blur(40px) saturate(150%);
     transition: background var(--normal-duration) var(--fast-out-slow-in);
   }
 
@@ -2862,11 +2860,7 @@ watch(() => props.selectedValue, (val) => {
     flex-shrink: 0;
     position: relative;
     z-index: 2;
-    background-color: var(--app-bg);
-    background-image: var(--user-bg, none);
-    background-size: var(--user-bg-size, auto);
-    background-position: var(--user-bg-position, center);
-    background-attachment: var(--user-bg-attachment, fixed);
+    background: transparent;
   }
 
   .win-nav-pane-command-row {

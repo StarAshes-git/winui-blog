@@ -412,7 +412,7 @@
   --AccentFillColorDisabledBrush: rgba(0, 0, 0, 0.22);
   --CardStrokeColorDefaultBrush: rgba(0, 0, 0, 0.06);
   --NavigationViewContentGridBorderBrush: #E5E5E5;
-  --NavigationViewContentBackground: rgba(249, 249, 249, 0.50);
+  --NavigationViewContentBackground: rgba(249, 249, 249, 0.15);
   --SystemFillColorAttentionBrush: #0067C0;
   --SystemFillColorSuccessBrush: #0F7B0F;
   --SystemFillColorCautionBrush: #9D5D00;
@@ -773,7 +773,7 @@ html.theme-light {
   --AccentFillColorDisabledBrush: rgba(0, 0, 0, 0.22);
   --CardStrokeColorDefaultBrush: rgba(0, 0, 0, 0.06);
   --NavigationViewContentGridBorderBrush: #E5E5E5;
-  --NavigationViewContentBackground: rgba(249, 249, 249, 0.50);
+  --NavigationViewContentBackground: rgba(249, 249, 249, 0.15);
   --SystemFillColorAttentionBrush: #0067C0;
   --SystemFillColorSuccessBrush: #0F7B0F;
   --SystemFillColorCautionBrush: #9D5D00;
@@ -1077,4 +1077,18 @@ html .basic-input-example-theme:has(.example-display[data-theme='dark']) .exampl
     transform: none !important;
     box-shadow: none !important;
   }
+}
+
+html.has-user-bg {
+  --NavigationViewContentBackground: rgba(249, 249, 249, 0.08);
+  --flyout-bg: rgba(252, 252, 252, 0.45);
+  --AcrylicInAppFillColorDefaultBrush: rgba(252, 252, 252, 0.45);
+  --host-nav-pane-bg: rgba(252, 252, 252, 0.45);
+}
+
+html.has-user-bg.theme-dark {
+  --NavigationViewContentBackground: rgba(48, 48, 48, 0.15);
+  --flyout-bg: rgba(44, 44, 44, 0.40);
+  --AcrylicInAppFillColorDefaultBrush: rgba(44, 44, 44, 0.40);
+  --host-nav-pane-bg: rgba(44, 44, 44, 0.40);
 }
