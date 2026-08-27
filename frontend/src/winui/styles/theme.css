@@ -678,6 +678,7 @@ html.theme-light {
     radial-gradient(120% 80% at 15% 10%, rgba(0, 103, 192, 0.08) 0%, transparent 55%),
     radial-gradient(100% 70% at 85% 20%, rgba(0, 120, 212, 0.06) 0%, transparent 60%),
     radial-gradient(90% 70% at 60% 90%, rgba(186, 85, 211, 0.04) 0%, transparent 55%);
+  --card-frosted-bg: rgba(255, 255, 255, 0.72);
   --layer-default: rgba(255, 255, 255, 0.50);
   --dialog-background: #FCFCFC;
   --dialog-content-bg: rgba(255, 255, 255, 0.95);
@@ -828,6 +829,7 @@ html.theme-dark {
     radial-gradient(120% 80% at 15% 10%, rgba(0, 120, 212, 0.10) 0%, transparent 55%),
     radial-gradient(100% 70% at 85% 20%, rgba(0, 103, 192, 0.08) 0%, transparent 60%),
     radial-gradient(90% 70% at 60% 90%, rgba(186, 85, 211, 0.05) 0%, transparent 55%);
+  --card-frosted-bg: rgba(28, 28, 28, 0.72);
   --layer-default: rgba(58, 58, 58, 0.30);
   --dialog-background: #2C2C2C;
   --flyout-bg: rgba(44, 44, 44, 0.86);
@@ -1083,14 +1085,22 @@ html.has-user-bg .example-theme-wrapper.theme-light,
 html.has-user-bg .win-theme-scope.theme-light {
   --NavigationViewContentBackground: rgba(249, 249, 249, 0.08);
   --layer-default: rgba(255, 255, 255, 0.08);
-  --flyout-bg: rgba(252, 252, 252, 0.45);
-  --AcrylicInAppFillColorDefaultBrush: rgba(252, 252, 252, 0.45);
 }
 
 html.has-user-bg .example-theme-wrapper.theme-dark,
 html.has-user-bg .win-theme-scope.theme-dark {
   --NavigationViewContentBackground: rgba(48, 48, 48, 0.15);
   --layer-default: rgba(58, 58, 58, 0.15);
-  --flyout-bg: rgba(44, 44, 44, 0.40);
-  --AcrylicInAppFillColorDefaultBrush: rgba(44, 44, 44, 0.40);
+}
+
+html.has-user-bg .win-nav-content::before {
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+html.has-user-bg :is(.intro-card, .recent-posts, .latest-project, .post-card, .project-card, .post-view) {
+  background: var(--card-frosted-bg) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
 }
