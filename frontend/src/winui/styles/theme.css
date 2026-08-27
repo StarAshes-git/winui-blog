@@ -1132,3 +1132,9 @@ html.has-user-bg .win-nav-shell.is-left-compact > .win-nav-left-panel::before,
 html.has-user-bg .win-nav-shell.is-left-compact > .win-nav-left-panel::after {
   border-radius: 12px;
 }
+
+html.has-user-bg .win-nav-shell.is-left > .win-nav-content {
+  border-top: 0;
+  border-left: 0;
+  border-radius: 0;
+}
