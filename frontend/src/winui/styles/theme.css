@@ -1112,3 +1112,23 @@ html.has-user-bg .win-nav-left-panel::before {
 html.has-user-bg .win-nav-shell.is-left-compact > .win-nav-left-panel.is-compact::before {
   opacity: 1;
 }
+
+html.has-user-bg .win-nav-shell.is-left-compact > .win-nav-content {
+  margin-left: calc(var(--win-nav-compact-pane-length, 48px) + 12px);
+}
+
+html.has-user-bg .win-nav-shell.is-left-compact > .win-nav-left-panel {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  bottom: 12px;
+  width: var(--win-nav-open-pane-length, 320px);
+  z-index: 20;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+}
+
+html.has-user-bg .win-nav-shell.is-left-compact > .win-nav-left-panel::before,
+html.has-user-bg .win-nav-shell.is-left-compact > .win-nav-left-panel::after {
+  border-radius: 12px;
+}
