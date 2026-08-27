@@ -1104,3 +1104,11 @@ html.has-user-bg :is(.intro-card, .recent-posts, .latest-project, .post-card, .p
   -webkit-backdrop-filter: blur(24px) saturate(160%);
   backdrop-filter: blur(24px) saturate(160%);
 }
+
+html.has-user-bg .win-nav-left-panel::before {
+  background: var(--card-frosted-bg) !important;
+}
+
+html.has-user-bg .win-nav-shell.is-left-compact > .win-nav-left-panel.is-compact::before {
+  opacity: 1;
+}
