@@ -113,6 +113,14 @@ onMounted(() => {
   background: var(--subtle-secondary);
   border: 1px solid var(--card-stroke);
   border-radius: 8px;
+  transition:
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.intro-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
 }
 
 .profile {
@@ -178,20 +186,22 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 8px;
+  padding: 4px 10px;
   border-radius: 4px;
   background: var(--subtle-tertiary);
   border: 1px solid var(--card-stroke);
   color: var(--text-secondary);
   text-decoration: none;
   font-size: 12px;
-  transition: all 0.15s;
+  transition: all 0.15s ease;
 }
 
 .social-link:hover {
   background: var(--subtle-secondary);
   color: var(--text-primary);
   border-color: var(--accent-base);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 
 .social-link .m-icon {
@@ -208,6 +218,14 @@ onMounted(() => {
   border: 1px solid var(--card-stroke);
   border-radius: 8px;
   padding: 20px 24px;
+  transition:
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.recent-posts:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
 }
 
 .section-title {

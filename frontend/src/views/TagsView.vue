@@ -99,11 +99,15 @@ onMounted(() => {
   transition:
     background 0.15s,
     border-color 0.15s,
-    color 0.15s;
+    color 0.15s,
+    transform 0.15s cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 0.15s;
 }
 .tag-btn:hover {
   background: var(--subtle-secondary);
   color: var(--text-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 .tag-btn.active {
   background: var(--accent-base);

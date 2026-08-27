@@ -83,11 +83,18 @@ onMounted(() => {
   border: 1px solid var(--card-stroke);
   border-radius: 8px;
   overflow: hidden;
-  transition: all 0.15s;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .project-card:hover {
   border-color: var(--accent-base);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.project-card:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
 }
 
 .project-cover {
@@ -175,6 +182,8 @@ onMounted(() => {
 .project-link:hover {
   background: var(--subtle-secondary);
   color: var(--text-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 
 .link-icon {
