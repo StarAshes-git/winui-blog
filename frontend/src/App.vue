@@ -65,10 +65,10 @@ async function loadSiteInfo(): Promise<void> {
     document.title = title;
     footerRecord.value = site.footer_record?.text ? site.footer_record : null;
     if (site.background_url) {
-      document.body.style.backgroundImage = `url(${site.background_url})`;
-      document.body.style.backgroundSize = "cover";
-      document.body.style.backgroundPosition = "center";
-      document.body.style.backgroundAttachment = "fixed";
+      document.documentElement.style.setProperty("--user-bg", `url(${site.background_url})`);
+      document.documentElement.style.setProperty("--user-bg-size", "cover");
+      document.documentElement.style.setProperty("--user-bg-position", "center");
+      document.documentElement.style.setProperty("--user-bg-attachment", "fixed");
     }
   } catch {
     /* 保持默认标题 */
