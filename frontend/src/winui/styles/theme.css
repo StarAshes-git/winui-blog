@@ -1109,7 +1109,8 @@ html.has-user-bg .win-nav-left-panel::before {
   background: var(--card-frosted-bg) !important;
 }
 
-html.has-user-bg .win-nav-shell.is-left-compact > .win-nav-left-panel.is-compact::before {
+html.has-user-bg .win-nav-shell.is-left-compact > .win-nav-left-panel.is-compact::before,
+html.has-user-bg .win-nav-shell.is-left-compact > .win-nav-left-panel.is-compact::after {
   opacity: 1;
 }
 
@@ -1131,6 +1132,13 @@ html.has-user-bg .win-nav-shell.is-left-compact > .win-nav-left-panel {
 html.has-user-bg .win-nav-shell.is-left-compact > .win-nav-left-panel::before,
 html.has-user-bg .win-nav-shell.is-left-compact > .win-nav-left-panel::after {
   border-radius: 12px;
+}
+
+html.has-user-bg .win-nav-shell.is-overlay-left > .win-nav-left-panel.is-compact {
+  width: 48px;
+  clip-path: none;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
 }
 
 html.has-user-bg .win-nav-shell.is-left > .win-nav-content {
