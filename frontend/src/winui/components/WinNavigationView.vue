@@ -2414,7 +2414,11 @@ watch(() => props.selectedValue, (val) => {
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    background: var(--app-bg);
+    background-color: var(--app-bg);
+    background-image: var(--user-bg, none);
+    background-size: var(--user-bg-size, auto);
+    background-position: var(--user-bg-position, center);
+    background-attachment: var(--user-bg-attachment, fixed);
   }
 
   .win-nav-shell.is-left {
@@ -2858,7 +2862,11 @@ watch(() => props.selectedValue, (val) => {
     flex-shrink: 0;
     position: relative;
     z-index: 2;
-    background: var(--app-bg);
+    background-color: var(--app-bg);
+    background-image: var(--user-bg, none);
+    background-size: var(--user-bg-size, auto);
+    background-position: var(--user-bg-position, center);
+    background-attachment: var(--user-bg-attachment, fixed);
   }
 
   .win-nav-pane-command-row {
