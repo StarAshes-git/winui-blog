@@ -17,6 +17,7 @@ const siteForm = ref<SiteInfo>({
   avatar_url: "",
   footer_record: { text: "", link: "" },
   social_links: [],
+  background_url: "",
 });
 const footerRecord = ref({ text: "", link: "" });
 const socialLinks = ref<SocialLink[]>([]);
@@ -96,7 +97,7 @@ async function loadSiteForm(): Promise<void> {
     footerRecord.value = site.footer_record ?? { text: "", link: "" };
     socialLinks.value = site.social_links ?? [];
   } catch {
-    siteForm.value = { intro: "", site_name: "", avatar_url: "", footer_record: null, social_links: [] };
+    siteForm.value = { intro: "", site_name: "", avatar_url: "", footer_record: null, social_links: [], background_url: "" };
     footerRecord.value = { text: "", link: "" };
     socialLinks.value = [];
   }
@@ -114,6 +115,7 @@ async function saveSite(): Promise<void> {
       intro: siteForm.value.intro,
       site_name: siteForm.value.site_name,
       avatar_url: siteForm.value.avatar_url,
+      background_url: siteForm.value.background_url,
       footer_record: footerRecord.value.text
         ? { text: footerRecord.value.text, link }
         : null,
@@ -452,6 +454,11 @@ const tabItems: { k: "posts" | "site" | "password" | "projects"; l: string }[] =
           v-model:Text="siteForm.avatar_url"
           PlaceholderText="头像图片 URL"
           Header="头像 URL"
+        />
+        <WinTextBox
+          v-model:Text="siteForm.background_url"
+          PlaceholderText="背景图片 URL"
+          Header="背景图 URL"
         />
         <WinTextBox
           v-model:Text="siteForm.intro"

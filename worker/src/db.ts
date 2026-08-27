@@ -144,6 +144,21 @@ export async function setSocialLinks(env: Env, links: SocialLink[]): Promise<voi
     .run();
 }
 
+export async function getBackgroundUrl(env: Env): Promise<string> {
+  const row = await env.DB.prepare("SELECT value FROM settings WHERE key = ?")
+    .bind("background_url")
+    .first<string>("value");
+  return row ?? "";
+}
+
+export async function setBackgroundUrl(env: Env, url: string): Promise<void> {
+  await env.DB.prepare(
+    "INSERT INTO settings (key, value) VALUES ('background_url', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value"
+  )
+    .bind(url)
+    .run();
+}
+
 export async function getStoredPassword(env: Env): Promise<string | null> {
   const row = await env.DB.prepare("SELECT value FROM settings WHERE key = ?")
     .bind("password_hash")

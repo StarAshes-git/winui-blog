@@ -14,6 +14,7 @@ export interface SiteInfo {
   avatar_url: string;
   footer_record: SiteFooterRecord | null;
   social_links: SocialLink[];
+  background_url: string;
 }
 
 export interface PostSummary {

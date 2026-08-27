@@ -64,6 +64,12 @@ async function loadSiteInfo(): Promise<void> {
     paneTitle.value = title;
     document.title = title;
     footerRecord.value = site.footer_record?.text ? site.footer_record : null;
+    if (site.background_url) {
+      document.body.style.backgroundImage = `url(${site.background_url})`;
+      document.body.style.backgroundSize = "cover";
+      document.body.style.backgroundPosition = "center";
+      document.body.style.backgroundAttachment = "fixed";
+    }
   } catch {
     /* 保持默认标题 */
   }

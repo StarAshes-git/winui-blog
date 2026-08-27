@@ -11,6 +11,7 @@ import {
   setAvatarUrl,
   setFooterRecord,
   setSocialLinks,
+  setBackgroundUrl,
   type SocialLink,
   createProject,
   updateProject,
@@ -60,6 +61,7 @@ adminApi.put("/site", async (c) => {
   if (typeof body?.intro === "string") tasks.push(setIntro(c.env, body.intro));
   if (typeof body?.site_name === "string") tasks.push(setSiteName(c.env, body.site_name));
   if (typeof body?.avatar_url === "string") tasks.push(setAvatarUrl(c.env, body.avatar_url));
+  if (typeof body?.background_url === "string") tasks.push(setBackgroundUrl(c.env, body.background_url));
   if (body?.footer_record !== undefined) {
     if (body.footer_record === null || body.footer_record.text === "") {
       tasks.push(setFooterRecord(c.env, null));

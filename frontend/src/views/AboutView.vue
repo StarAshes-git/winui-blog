@@ -1,21 +1,22 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { client } from "../api/client";
-import type { SiteInfo, PostSummary } from "../api/types";
+import type { SiteInfo, PostSummary, ProjectSummary } from "../api/types";
 import PostCard from "../components/PostCard.vue";
 import WinTextBlock from "../winui/components/WinTextBlock.vue";
 import WinContextMenu from "../winui/components/WinContextMenu.vue";
 
-const site = ref<SiteInfo>({ intro: "", site_name: "", avatar_url: "", footer_record: null, social_links: [] });
+const site = ref<SiteInfo>({ intro: "", site_name: "", avatar_url: "", footer_record: null, social_links: [], background_url: "" });
 const avatarFailed = ref(false);
 const recentPosts = ref<PostSummary[]>([]);
+const latestProject = ref<ProjectSummary | null>(null);
 
 async function loadSite(): Promise<void> {
   try {
     site.value = await client.getSite();
     avatarFailed.value = false;
   } catch {
-    site.value = { intro: "", site_name: "", avatar_url: "", footer_record: null, social_links: [] };
+    site.value = { intro: "", site_name: "", avatar_url: "", footer_record: null, social_links: [], background_url: "" };
   }
 }
 
@@ -25,6 +26,15 @@ async function loadRecentPosts(): Promise<void> {
     recentPosts.value = data.posts;
   } catch {
     recentPosts.value = [];
+  }
+}
+
+async function loadLatestProject(): Promise<void> {
+  try {
+    const data = await client.listProjects();
+    latestProject.value = data.projects.length > 0 ? data.projects[0] : null;
+  } catch {
+    latestProject.value = null;
   }
 }
 
@@ -51,6 +61,7 @@ function getSocialIcon(name: string): string {
 onMounted(() => {
   loadSite();
   loadRecentPosts();
+  loadLatestProject();
 });
 </script>
 
@@ -87,11 +98,29 @@ onMounted(() => {
       </div>
     </section>
 
+    <section v-if="latestProject" class="latest-project">
+      <h2 class="section-title">最新作品</h2>
+      <WinContextMenu>
+        <router-link to="/works" class="project-highlight">
+          <div v-if="latestProject.cover_url" class="project-cover">
+            <img :src="latestProject.cover_url" :alt="latestProject.title" class="cover-img" />
+          </div>
+          <div class="project-info">
+            <WinTextBlock class="project-title" FontSize="18" FontWeight="600" :Text="latestProject.title" />
+            <WinTextBlock v-if="latestProject.description" class="project-desc" :Text="latestProject.description" />
+            <div v-if="latestProject.tags.length" class="project-tags">
+              <span v-for="tag in latestProject.tags" :key="tag" class="project-tag">{{ tag }}</span>
+            </div>
+          </div>
+        </router-link>
+      </WinContextMenu>
+    </section>
+
     <section class="recent-posts">
-      <h2 class="section-title">最近文章</h2>
+      <h2 class="section-title">最新文章</h2>
       <WinContextMenu>
         <div class="posts-list">
-          <PostCard v-for="p in recentPosts" :key="p.id" :post="p" />
+          <PostCard v-for="p in recentPosts.slice(0, 3)" :key="p.id" :post="p" />
           <div v-if="recentPosts.length === 0" class="hint">
             <WinTextBlock :Text="'暂无文章'" />
           </div>
@@ -211,6 +240,78 @@ onMounted(() => {
 
 .social-name {
   font-weight: 500;
+}
+
+.latest-project {
+  background: var(--subtle-secondary);
+  border: 1px solid var(--card-stroke);
+  border-radius: 8px;
+  padding: 20px 24px;
+}
+
+.project-highlight {
+  display: flex;
+  gap: 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.project-highlight:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+}
+
+.project-cover {
+  width: 120px;
+  height: 80px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--subtle-tertiary);
+}
+
+.cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.project-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.project-title {
+  margin-bottom: 6px;
+  color: var(--text-primary);
+  display: block;
+}
+
+.project-desc {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+  display: block;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.project-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.project-tag {
+  padding: 2px 8px;
+  background: var(--subtle-tertiary);
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
 }
 
 .recent-posts {

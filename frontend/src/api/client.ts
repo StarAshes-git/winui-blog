@@ -58,6 +58,7 @@ export const client = {
     intro?: string;
     site_name?: string;
     avatar_url?: string;
+    background_url?: string;
     footer_record?: { text: string; link: string } | null;
     social_links?: { name: string; url: string }[];
   }) => request<{ ok: boolean }>("/site", { method: "PUT", body: JSON.stringify(body) }),
