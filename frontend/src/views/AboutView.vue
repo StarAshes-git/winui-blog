@@ -6,6 +6,7 @@ import PostCard from "../components/PostCard.vue";
 import WinTextBlock from "../winui/components/WinTextBlock.vue";
 import WinContextMenu from "../winui/components/WinContextMenu.vue";
 import { useEntranceAnimation } from "../composables/useEntranceAnimation";
+import { waitSiteReady } from "../composables/siteReady";
 
 const site = ref<SiteInfo>({ intro: "", site_name: "", avatar_url: "", footer_record: null, social_links: [], background_url: "" });
 const avatarFailed = ref(false);
@@ -62,7 +63,9 @@ function getSocialIcon(name: string): string {
 
 onMounted(() => {
   Promise.all([loadSite(), loadRecentPosts(), loadLatestProject()]).then(() => {
-    requestAnimationFrame(() => entrance.animateCards());
+    waitSiteReady().then(() => {
+      requestAnimationFrame(() => entrance.animateCards());
+    });
   });
 });
 </script>

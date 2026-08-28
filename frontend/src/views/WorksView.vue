@@ -5,6 +5,7 @@ import type { ProjectSummary } from "../api/types";
 import WinTextBlock from "../winui/components/WinTextBlock.vue";
 import WinContextMenu from "../winui/components/WinContextMenu.vue";
 import { useEntranceAnimation } from "../composables/useEntranceAnimation";
+import { waitSiteReady } from "../composables/siteReady";
 
 const projects = ref<ProjectSummary[]>([]);
 const entrance = useEntranceAnimation();
@@ -13,7 +14,7 @@ async function loadProjects(): Promise<void> {
   try {
     const data = await client.listProjects();
     projects.value = data.projects;
-    requestAnimationFrame(() => entrance.animateCards());
+    waitSiteReady().then(() => requestAnimationFrame(() => entrance.animateCards()));
   } catch {
     projects.value = [];
   }

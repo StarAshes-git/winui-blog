@@ -6,11 +6,21 @@ import WinNavigationView from "./winui/components/WinNavigationView.vue";
 import WinThemeWrapper from "./winui/components/WinThemeWrapper.vue";
 import WinContextMenu from "./winui/components/WinContextMenu.vue";
 import { useEntranceAnimation } from "./composables/useEntranceAnimation";
+import { markSiteReady } from "./composables/siteReady";
 
 const route = useRoute();
 const router = useRouter();
 
 const theme = ref<"light" | "dark">("light");
+
+function preloadImage(url: string): Promise<void> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = () => resolve();
+    img.src = url;
+  });
+}
 
 function applyTheme() {
   const html = document.documentElement;
@@ -25,15 +35,16 @@ function toggleTheme() {
 
 const entrance = useEntranceAnimation();
 
-onMounted(() => {
-  loadSiteInfo();
+onMounted(async () => {
   const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   theme.value = prefersDark ? "dark" : "light";
   applyTheme();
-  router.isReady().then(() => {
-    requestAnimationFrame(() => {
-      entrance.animateSidebar();
-    });
+  const siteReadyPromise = loadSiteInfo();
+  await router.isReady();
+  await siteReadyPromise;
+  markSiteReady();
+  requestAnimationFrame(() => {
+    entrance.animateSidebar();
   });
 });
 
@@ -76,6 +87,7 @@ async function loadSiteInfo(): Promise<void> {
     document.title = title;
     footerRecord.value = site.footer_record?.text ? site.footer_record : null;
     if (site.background_url) {
+      await preloadImage(site.background_url);
       document.documentElement.classList.add("has-user-bg");
       document.documentElement.style.setProperty("--user-bg", `url(${site.background_url})`);
       document.documentElement.style.setProperty("--user-bg-size", "cover");
