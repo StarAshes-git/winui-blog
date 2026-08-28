@@ -4,13 +4,16 @@ import { client } from "../api/client";
 import type { ProjectSummary } from "../api/types";
 import WinTextBlock from "../winui/components/WinTextBlock.vue";
 import WinContextMenu from "../winui/components/WinContextMenu.vue";
+import { useEntranceAnimation } from "../composables/useEntranceAnimation";
 
 const projects = ref<ProjectSummary[]>([]);
+const entrance = useEntranceAnimation();
 
 async function loadProjects(): Promise<void> {
   try {
     const data = await client.listProjects();
     projects.value = data.projects;
+    requestAnimationFrame(() => entrance.animateCards());
   } catch {
     projects.value = [];
   }
@@ -29,7 +32,7 @@ onMounted(() => {
   <div class="works-view">
     <WinContextMenu>
       <div class="projects-grid">
-        <div v-for="project in projects" :key="project.id" class="project-card">
+        <div v-for="project in projects" :key="project.id" class="project-card anim-card">
           <div class="project-cover">
             <img
               v-if="project.cover_url"

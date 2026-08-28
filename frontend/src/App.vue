@@ -5,6 +5,7 @@ import { client } from "./api/client";
 import WinNavigationView from "./winui/components/WinNavigationView.vue";
 import WinThemeWrapper from "./winui/components/WinThemeWrapper.vue";
 import WinContextMenu from "./winui/components/WinContextMenu.vue";
+import { useEntranceAnimation } from "./composables/useEntranceAnimation";
 
 const route = useRoute();
 const router = useRouter();
@@ -22,17 +23,27 @@ function toggleTheme() {
   applyTheme();
 }
 
+const entrance = useEntranceAnimation();
+
 onMounted(() => {
   loadSiteInfo();
   const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   theme.value = prefersDark ? "dark" : "light";
   applyTheme();
+  router.isReady().then(() => {
+    requestAnimationFrame(() => {
+      entrance.animateSidebar();
+    });
+  });
 });
 
 watch(
   () => route.path,
   () => {
     loadSiteInfo();
+    requestAnimationFrame(() => {
+      entrance.animateCards(document);
+    });
   }
 );
 
@@ -140,7 +151,9 @@ function onItemInvoked(e: { InvokedItem: unknown; IsSettingsInvoked: boolean; In
       class="app-nav"
     >
       <main class="app-content">
-        <router-view />
+        <Transition name="page" mode="out-in">
+          <router-view :key="route.path" />
+        </Transition>
         <WinContextMenu>
           <footer v-if="footerRecord" class="app-footer">
           <a
@@ -180,5 +193,15 @@ function onItemInvoked(e: { InvokedItem: unknown; IsSettingsInvoked: boolean; In
 }
 .app-footer a:hover {
   color: var(--accent-base);
+}
+.page-enter-active {
+  transition: opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.page-leave-active {
+  transition: opacity 0.16s ease;
+}
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
 }
 </style>

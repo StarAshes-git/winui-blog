@@ -6,11 +6,13 @@ import PostCard from "../components/PostCard.vue";
 import WinProgressRing from "../winui/components/WinProgressRing.vue";
 import WinTextBlock from "../winui/components/WinTextBlock.vue";
 import WinContextMenu from "../winui/components/WinContextMenu.vue";
+import { useEntranceAnimation } from "../composables/useEntranceAnimation";
 
 const tags = ref<TagCount[]>([]);
 const selected = ref("");
 const posts = ref<PagedPosts>({ posts: [], total: 0 });
 const loading = ref(false);
+const entrance = useEntranceAnimation();
 
 async function loadTags(): Promise<void> {
   try {
@@ -24,6 +26,7 @@ async function loadPosts(): Promise<void> {
   loading.value = true;
   try {
     posts.value = await client.listPosts({ tag: selected.value || undefined, limit: 50 });
+    requestAnimationFrame(() => entrance.animateCards());
   } finally {
     loading.value = false;
   }
@@ -66,7 +69,7 @@ onMounted(() => {
         <WinTextBlock class="hint" :Text="'加载中…'" />
       </div>
       <template v-else>
-        <PostCard v-for="p in posts.posts" :key="p.id" :post="p" />
+        <PostCard v-for="p in posts.posts" :key="p.id" :post="p" class="anim-card" />
         <div v-if="posts.posts.length === 0" class="hint">
           <WinTextBlock :Text="'该标签下暂无文章。'" />
         </div>

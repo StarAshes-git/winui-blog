@@ -5,10 +5,12 @@ import { client } from "../api/client";
 import type { PostDetail } from "../api/types";
 import MarkdownView from "../components/MarkdownView.vue";
 import WinContextMenu from "../winui/components/WinContextMenu.vue";
+import { useEntranceAnimation } from "../composables/useEntranceAnimation";
 
 const route = useRoute();
 const post = ref<PostDetail | null>(null);
 const error = ref("");
+const entrance = useEntranceAnimation();
 
 const GISCUS_CONFIG = {
   repo: "wyf2012/winui-blog" as `${string}/${string}`,
@@ -61,6 +63,7 @@ async function loadPost(): Promise<void> {
   }
   try {
     post.value = await client.getPost(id);
+    requestAnimationFrame(() => entrance.animateCards());
   } catch (e) {
     error.value = (e as Error).message;
   }
@@ -83,7 +86,7 @@ watch(
 </script>
 
 <template>
-  <article v-if="post" class="post-view">
+  <article v-if="post" class="post-view anim-card">
     <h1 class="post-title">{{ post.title }}</h1>
     <div class="post-meta">
       <span class="m-icon">&#xE8EF;</span>

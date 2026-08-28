@@ -5,11 +5,13 @@ import type { SiteInfo, PostSummary, ProjectSummary } from "../api/types";
 import PostCard from "../components/PostCard.vue";
 import WinTextBlock from "../winui/components/WinTextBlock.vue";
 import WinContextMenu from "../winui/components/WinContextMenu.vue";
+import { useEntranceAnimation } from "../composables/useEntranceAnimation";
 
 const site = ref<SiteInfo>({ intro: "", site_name: "", avatar_url: "", footer_record: null, social_links: [], background_url: "" });
 const avatarFailed = ref(false);
 const recentPosts = ref<PostSummary[]>([]);
 const latestProject = ref<ProjectSummary | null>(null);
+const entrance = useEntranceAnimation();
 
 async function loadSite(): Promise<void> {
   try {
@@ -59,15 +61,15 @@ function getSocialIcon(name: string): string {
 }
 
 onMounted(() => {
-  loadSite();
-  loadRecentPosts();
-  loadLatestProject();
+  Promise.all([loadSite(), loadRecentPosts(), loadLatestProject()]).then(() => {
+    requestAnimationFrame(() => entrance.animateCards());
+  });
 });
 </script>
 
 <template>
   <div class="about-view">
-    <section class="intro-card">
+    <section class="intro-card anim-card">
       <div class="profile">
         <div class="avatar">
           <img
@@ -98,7 +100,7 @@ onMounted(() => {
       </div>
     </section>
 
-    <section v-if="latestProject" class="latest-project">
+    <section v-if="latestProject" class="latest-project anim-card">
       <h2 class="section-title">最新作品</h2>
       <WinContextMenu>
         <router-link to="/works" class="project-highlight">
@@ -116,11 +118,11 @@ onMounted(() => {
       </WinContextMenu>
     </section>
 
-    <section class="recent-posts">
+    <section class="recent-posts anim-card">
       <h2 class="section-title">最新文章</h2>
       <WinContextMenu>
         <div class="posts-list">
-          <PostCard v-for="p in recentPosts.slice(0, 3)" :key="p.id" :post="p" />
+          <PostCard v-for="p in recentPosts.slice(0, 3)" :key="p.id" :post="p" class="anim-card" />
           <div v-if="recentPosts.length === 0" class="hint">
             <WinTextBlock :Text="'暂无文章'" />
           </div>

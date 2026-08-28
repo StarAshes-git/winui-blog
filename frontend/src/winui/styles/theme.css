@@ -1146,3 +1146,47 @@ html.has-user-bg .win-nav-shell.is-left > .win-nav-content {
   border-left: 0;
   border-radius: 0;
 }
+
+/* ===== Entrance Animations ===== */
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-32px) scale(0.96); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(32px) scale(0.96); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.anim-slide-left,
+.anim-slide-right {
+  opacity: 0;
+}
+
+.anim-slide-left  { animation: slideInLeft  0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.anim-slide-right { animation: slideInRight 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+.anim-fade-up {
+  opacity: 0;
+  animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Sidebar entrance */
+.anim-nav-in {
+  opacity: 0;
+  animation: slideInLeft 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.05s forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-slide-left, .anim-slide-right, .anim-fade-up, .anim-nav-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
