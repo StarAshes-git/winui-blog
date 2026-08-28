@@ -46,6 +46,7 @@ watch(
   () => route.path,
   () => {
     loadSiteInfo();
+    entrance.resetCounter();
     requestAnimationFrame(() => {
       entrance.animateCards(document);
     });
