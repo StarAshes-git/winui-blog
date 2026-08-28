@@ -38,6 +38,7 @@ onMounted(async () => {
   await router.isReady();
   requestAnimationFrame(() => {
     entrance.animateSidebar();
+    entrance.animateCards();
   });
 });
 
