@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, onUnmounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import { client } from "../api/client";
 import type { PostDetail } from "../api/types";
@@ -11,6 +11,8 @@ const route = useRoute();
 const post = ref<PostDetail | null>(null);
 const error = ref("");
 const entrance = useEntranceAnimation();
+const giscusError = ref("");
+const retryCount = ref(0);
 
 const GISCUS_CONFIG = {
   repo: "wyf2012/winui-blog" as `${string}/${string}`,
@@ -26,6 +28,7 @@ function formatTime(ts: number): string {
 }
 
 function loadGiscus(): void {
+  giscusError.value = "";
   const existing = document.querySelector("script.giscus-script");
   if (existing) existing.remove();
   const existingIframe = document.querySelector("iframe.giscus-frame");
@@ -55,6 +58,27 @@ function loadGiscus(): void {
   }
 }
 
+function onGiscusMessage(e: MessageEvent): void {
+  if (e.origin !== "https://giscus.app") return;
+  const msg = e.data;
+  if (!msg || typeof msg !== "object" || msg.giscus === undefined) return;
+  if (msg.giscus.error) {
+    giscusError.value = "评论加载失败，请检查网络后重试";
+  }
+}
+
+function retryGiscus(): void {
+  retryCount.value++;
+  loadGiscus();
+}
+
+onMounted(() => {
+  window.addEventListener("message", onGiscusMessage);
+  loadPost().then(() => {
+    if (post.value) loadGiscus();
+  });
+});
+
 async function loadPost(): Promise<void> {
   const id = Number(route.params.id);
   if (!Number.isInteger(id)) {
@@ -70,9 +94,14 @@ async function loadPost(): Promise<void> {
 }
 
 onMounted(() => {
+  window.addEventListener("message", onGiscusMessage);
   loadPost().then(() => {
     if (post.value) loadGiscus();
   });
+});
+
+onUnmounted(() => {
+  window.removeEventListener("message", onGiscusMessage);
 });
 
 watch(
@@ -103,6 +132,10 @@ watch(
 
     <section class="giscus-section">
       <h2 class="comment-title">评论</h2>
+      <div v-if="giscusError" class="giscus-error">
+        <p>{{ giscusError }}</p>
+        <button class="retry-btn" @click="retryGiscus">重试</button>
+      </div>
       <div id="giscus-container" />
     </section>
   </article>
@@ -174,5 +207,32 @@ watch(
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 16px;
+}
+
+.giscus-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+.giscus-error p {
+  margin: 0;
+}
+.retry-btn {
+  border: 1px solid var(--card-stroke);
+  background: var(--subtle-tertiary);
+  color: var(--text-primary);
+  border-radius: 4px;
+  padding: 6px 18px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.retry-btn:hover {
+  background: var(--subtle-secondary);
+  border-color: var(--accent-base);
 }
 </style>
