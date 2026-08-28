@@ -7,7 +7,6 @@ import WinProgressRing from "../winui/components/WinProgressRing.vue";
 import WinTextBlock from "../winui/components/WinTextBlock.vue";
 import WinContextMenu from "../winui/components/WinContextMenu.vue";
 import { useEntranceAnimation } from "../composables/useEntranceAnimation";
-import { waitSiteReady } from "../composables/siteReady";
 
 const tags = ref<TagCount[]>([]);
 const selected = ref("");
@@ -27,7 +26,7 @@ async function loadPosts(): Promise<void> {
   loading.value = true;
   try {
     posts.value = await client.listPosts({ tag: selected.value || undefined, limit: 50 });
-    waitSiteReady().then(() => requestAnimationFrame(() => entrance.animateCards()));
+    requestAnimationFrame(() => entrance.animateCards());
   } finally {
     loading.value = false;
   }

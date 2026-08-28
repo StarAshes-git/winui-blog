@@ -6,7 +6,6 @@ import type { PostDetail } from "../api/types";
 import MarkdownView from "../components/MarkdownView.vue";
 import WinContextMenu from "../winui/components/WinContextMenu.vue";
 import { useEntranceAnimation } from "../composables/useEntranceAnimation";
-import { waitSiteReady } from "../composables/siteReady";
 
 const route = useRoute();
 const post = ref<PostDetail | null>(null);
@@ -64,7 +63,7 @@ async function loadPost(): Promise<void> {
   }
   try {
     post.value = await client.getPost(id);
-    waitSiteReady().then(() => requestAnimationFrame(() => entrance.animateCards()));
+    requestAnimationFrame(() => entrance.animateCards());
   } catch (e) {
     error.value = (e as Error).message;
   }

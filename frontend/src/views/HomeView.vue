@@ -8,7 +8,6 @@ import WinProgressRing from "../winui/components/WinProgressRing.vue";
 import WinTextBlock from "../winui/components/WinTextBlock.vue";
 import WinContextMenu from "../winui/components/WinContextMenu.vue";
 import { useEntranceAnimation } from "../composables/useEntranceAnimation";
-import { waitSiteReady } from "../composables/siteReady";
 
 const paged = ref<PagedPosts>({ posts: [], total: 0 });
 const page = ref(1);
@@ -19,7 +18,7 @@ async function loadPosts(): Promise<void> {
   loading.value = true;
   try {
     paged.value = await client.listPosts({ page: page.value, limit: 10 });
-    waitSiteReady().then(() => requestAnimationFrame(() => entrance.animateCards()));
+    requestAnimationFrame(() => entrance.animateCards());
   } finally {
     loading.value = false;
   }
